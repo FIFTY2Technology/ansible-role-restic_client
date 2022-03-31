@@ -68,6 +68,6 @@ molecule-test:
     - molecule test
   parallel:
     matrix:
-      - MOLECULE_DISTRO: [centos8, debian10, ubuntu1804]
+      - MOLECULE_DISTRO: [rockylinux8, debian10, ubuntu1804]
   tags:
     - baremetal
