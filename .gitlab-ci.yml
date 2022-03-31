@@ -13,10 +13,9 @@ stages:
   - . venv/bin/activate
 
 setup_environment:
-  image: python:3.9.2-slim-buster
   stage: setup
   script:
-    - python -m venv --copies venv
+    - python -m venv venv
     - *activate-python-venv
     - echo $PATH
     - pip install --upgrade pip
