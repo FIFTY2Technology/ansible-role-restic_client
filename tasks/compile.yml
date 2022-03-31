@@ -14,12 +14,12 @@
       changed_when: false
 
     - name: Build PBS
-      ansible.builtin.make:
+      community.general.make:
         chdir: "{{ _openpbs_compile_dir }}"
   become_user: "{{ openpbs_user }}"
 
 - name: Install PBS
-  ansible.builtin.make:
+  community.general.make:
     chdir: "{{ _openpbs_compile_dir }}"
     target: install
 
