@@ -14,11 +14,10 @@
     - ansible_os_family == 'Debian'
     - ansible_distribution == 'Ubuntu'
 
-- name: Install required packages for building and running OpenPBS on CentOS
+- name: Install required packages for building and running OpenPBS on RedHat
   ansible.builtin.include_tasks: install_CentOS.yml
   when:
     - ansible_os_family == 'RedHat'
-    - ansible_distribution == 'CentOS'
 
 ###
 # Other distributions (we use) are not supported by OpenPBS.
