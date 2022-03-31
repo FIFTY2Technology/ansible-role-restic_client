@@ -26,7 +26,7 @@ setup_environment:
     paths:
       - venv/
   tags:
-    - Docker_native_Linux
+    - baremetal
 
 ###
 # Linting
@@ -70,4 +70,4 @@ molecule-test:
     matrix:
       - MOLECULE_DISTRO: [centos8, debian10, ubuntu1804]
   tags:
-    - Docker_native_Linux
+    - baremetal
