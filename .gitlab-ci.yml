@@ -13,9 +13,10 @@ stages:
   - . venv/bin/activate
 
 setup_environment:
+  image: python:3.9.2-slim-buster
   stage: setup
   script:
-    - python -m venv venv
+    - python -m venv --copies venv
     - *activate-python-venv
     - echo $PATH
     - pip install --upgrade pip
@@ -25,7 +26,7 @@ setup_environment:
     paths:
       - venv/
   tags:
-    - baremetal
+    - Docker_native_Linux
 
 ###
 # Linting
@@ -56,6 +57,8 @@ molecule-test:
   needs:
     - setup_environment
   script:
+    - ls -la
+    - python -V
     - *activate-python-venv
     - echo $PATH
     - python -V
@@ -67,4 +70,4 @@ molecule-test:
     matrix:
       - MOLECULE_DISTRO: [rockylinux8, debian10, ubuntu1804]
   tags:
-    - baremetal
+    - Docker_native_Linux
