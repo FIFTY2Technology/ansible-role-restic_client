@@ -57,8 +57,6 @@ molecule-test:
   needs:
     - setup_environment
   script:
-    - ls -la
-    - python -V
     - *activate-python-venv
     - echo $PATH
     - python -V
