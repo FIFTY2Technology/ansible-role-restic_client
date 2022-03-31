@@ -1,12 +1,12 @@
 ---
 
 - name: Print server- and mom-assignment (based on group membership) when invoked with '-v'
-  debug:
+  ansible.builtin.debug:
     verbosity: 1
     msg: "server: {{ openpbs_server }}. mom: {{ openpbs_mom }}"
 
 - name: Template /etc/pbs.conf to configure the PBS service that should be started
-  template:
+  ansible.builtin.template:
     src: pbs.conf.j2
     dest: /etc/pbs.conf
     owner: root

@@ -6,9 +6,10 @@
 # It will be temporarily stored on one of the nodes which require the download.
 ###
 - name: Download OpenPBS {{ openpbs_version }} release tarball from GitHub
-  get_url:
+  ansible.builtin.get_url:
     url: "https://api.github.com/repos/openpbs/openpbs/tarball/v{{ openpbs_version }}"
     dest: "/tmp/"
+    mode: '0644'
   check_mode: false
   register: _download_archive
   until: _download_archive is succeeded

@@ -1,11 +1,11 @@
 ---
 
 - name: Clean up temporary downloads
-  file:
+  ansible.builtin.file:
     path: "{{ _download_archive.dest }}"
     state: absent
 
 - name: Restart PBS service
-  service:
+  ansible.builtin.service:
     name: pbs
     state: restarted

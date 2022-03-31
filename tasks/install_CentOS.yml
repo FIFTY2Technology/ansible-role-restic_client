@@ -1,7 +1,7 @@
 ---
 
 - name: Install PowerTools repository - CentOS
-  dnf:
+  ansible.builtin.dnf:
     state: present
     update_cache: true
     name: dnf-plugins-core
@@ -11,7 +11,7 @@
 # 'create: false' raises an error if not already installed
 ###
 - name: Activate PowerTools repository - CentOS 8.2 and earlier
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/yum.repos.d/CentOS-PowerTools.repo
     create: false
     regexp: enabled=
@@ -24,7 +24,7 @@
 # https://wiki.centos.org/Manuals/ReleaseNotes/CentOS8.2011#Yum_repo_file_and_repoid_changes
 ###
 - name: Activate PowerTools repository - CentOS 8.3 and later
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
     create: false
     regexp: enabled=
@@ -33,7 +33,7 @@
     - ansible_distribution_version >= '8.3'
 
 - name: Install required packages for building OpenPBS - CentOS
-  dnf:
+  ansible.builtin.dnf:
     state: present
     update_cache: true
     name:
@@ -63,7 +63,7 @@
       - gcc-c++
 
 - name: Install required packages for running OpenPBS - CentOS
-  dnf:
+  ansible.builtin.dnf:
     state: present
     update_cache: true
     name:

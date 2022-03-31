@@ -1,11 +1,11 @@
 ---
 
 - name: Set name for compile directory based on OpenPBS version
-  set_fact:
+  ansible.builtin.set_fact:
     _openpbs_compile_dir: "{{ openpbs_home_dir }}/openpbs_v{{ openpbs_version }}"
 
 - name: Create directory to unpack into
-  file:
+  ansible.builtin.file:
     name: "{{ _openpbs_compile_dir }}"
     state: directory
     owner: "{{ openpbs_user }}"
@@ -19,7 +19,7 @@
 #     Strip NUMBER leading components from file names on extraction.
 ###
 - name: Unpack OpenPBS archive
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ _download_archive.dest }}"
     dest: "{{ _openpbs_compile_dir }}"
     owner: "{{ openpbs_user }}"

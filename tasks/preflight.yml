@@ -1,13 +1,13 @@
 ---
 
 - name: Gather facts about existing OpenPBS installation
-  stat:
+  ansible.builtin.stat:
     path: /opt/pbs/libexec/pbs_init.d
   register: _openpbs_installation
 
 - block:
     - name: Get version of currently installed OpenPBS
-      command:
+      ansible.builtin.command:
         cmd: /opt/pbs/libexec/pbs_init.d --version
       register: _openpbs_installed_version_raw
       changed_when: false
@@ -16,7 +16,7 @@
     # Version output is formatted like this: 'pbs_version = 20.0.1'
     ###
     - name: Format output of version checking
-      set_fact:
+      ansible.builtin.set_fact:
         _openpbs_installed_version: "{{ _openpbs_installed_version_raw.stdout.split('=')[1] | trim }}"
   when:
     - _openpbs_installation.stat.exists
@@ -25,7 +25,7 @@
 # For the 'version()' test later, this variable has to be defined for all nodes.
 ###
 - name: Request OpenPBS installation
-  set_fact:
+  ansible.builtin.set_fact:
     _openpbs_installed_version: "0.0"
   when:
     - not _openpbs_installation.stat.exists
@@ -35,7 +35,7 @@
 ###
 - block:
     - name: Check for latest OpenPBS version available
-      uri:
+      ansible.builtin.uri:
         url: "https://api.github.com/repos/openpbs/openpbs/releases/latest"
         method: GET
         return_content: true
@@ -55,20 +55,20 @@
     # version number provided by the GitHub API.
     ###
     - name: Set OpenPBS version available
-      set_fact:
+      ansible.builtin.set_fact:
         openpbs_version: "{{ _openpbs_release.json.tag_name[1:] }}"
   when:
     - openpbs_version == 'latest'
 
 - name: Create user {{ openpbs_user }}
-  user:
+  ansible.builtin.user:
     name: "{{ openpbs_user }}"
     home: "{{ openpbs_home_dir }}"
     password: '*'
     state: present
 
 - name: Grant user {{ openpbs_user }} sudo rights
-  template:
+  ansible.builtin.template:
     src: sudoers.d.j2
     dest: /etc/sudoers.d/openpbs
     validate: '/usr/sbin/visudo -cf %s'

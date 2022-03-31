@@ -3,7 +3,7 @@
 - name: Create queue on OpenPBS server
   block:
     - name: Create OpenPBS queue
-      shell: >
+      ansible.builtin.shell: >
           create queue {{ queue.name | quote }}
           queue_type={{ queue.type | quote }}
       args:
@@ -21,7 +21,7 @@
     # Queue already exists
     ###
     - name: Queue already exists, printing command output
-      debug:
+      ansible.builtin.debug:
         msg: "{{ item.stderr_lines[0] }}"
       when:
         - item.rc == 177
@@ -36,7 +36,7 @@
     # multiple names, it works on all tested platforms (OpenPBS v20.0.1).
     ###
     - name: Set OpenPBS queue properties
-      shell: >
+      ansible.builtin.shell: >
           set queue {{ queue.name | quote }}
           started={{ queue.started | ternary('true', 'false') }},
           enabled={{ queue.enabled | ternary('true', 'false') }}
@@ -55,7 +55,7 @@
 - name: Add all compute nodes to server
   block:
     - name: Register all compute nodes in server
-      shell: >
+      ansible.builtin.shell: >
           create node {{ inventory_hostname_short | quote }}
       args:
         executable: "{{ openpbs_prefix }}/bin/qmgr"
@@ -67,7 +67,7 @@
       delegate_to: "{{ groups['pbsscheduler'] | first }}"
 
     - name: Node was already registered
-      debug:
+      ansible.builtin.debug:
         msg: "Node already exists"
       when:
         - _openpbs_add_nodes.rc == 218
