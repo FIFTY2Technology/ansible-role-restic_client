@@ -1,5 +1,5 @@
 # Description
-Installs `restic` and configures it to do a full system backup every night. Each node starts its backup between 00:00 and 03:00 o'clock, always at the same point in time (e.g. always starting at 01:23 o'clock).[^1] Backups are pushed to a restic REST server, other repository backends are not (yet) supported.
+Installs `restic` and configures it to do a full system backup every night. Each node starts its backup between 00:00 and 03:00 o'clock, always at the same point in time (e.g. always starting at 01:23 o'clock).[^1] Backups are pushed to a [restic REST server](https://github.com/restic/rest-server), other repository backends are not (yet) supported.
 
 It creates a systemd service file `restic-backup.service` that runs periodically via a `.timer` file. A `restic-prune.service` runs the `restic prune --forget` command once a week to delete old backups.
 
