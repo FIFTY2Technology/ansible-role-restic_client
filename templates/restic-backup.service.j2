@@ -1,0 +1,23 @@
+{# barefaced stolen from https://fedoramagazine.org/automate-backups-with-restic-and-systemd/ #}
+# {{ ansible_managed }}
+
+[Unit]
+Description=Restic backup
+Documentation=https://restic.readthedocs.io
+
+[Service]
+Type=oneshot
+User={{ restic_client_user }}
+Group={{ restic_client_group }}
+AmbientCapabilities=cap_dac_read_search
+ExecStart=-{{ restic_client_bin_dir }}/restic init
+ExecStart={{ restic_client_bin_dir }}/restic backup \
+		  --verbose \
+		  --tag systemd.timer \
+		  --exclude-caches \
+		  --files-from={{ restic_client_config_dir }}/includes \
+		  --exclude-file={{ restic_client_config_dir }}/excludes
+{# Do not start a backup run (ExecStart) when doing a systemd service reload. #}
+{# Instead, run this arbitrary command which also proves the repo is working as expected. #}
+ExecReload={{ restic_client_bin_dir }}/restic version
+EnvironmentFile={{ restic_client_config_dir }}/backup.conf

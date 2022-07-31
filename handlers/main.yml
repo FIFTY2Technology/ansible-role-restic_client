@@ -1,0 +1,40 @@
+---
+
+- name: Clean up temporary downloads
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  loop:
+    - "/tmp/restic_{{ _restic_client_version }}_linux_amd64.bz2"
+    - "/tmp/restic_{{ _restic_client_version }}_linux_amd64"
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon-reload: true
+
+- name: Enable systemd timers for restic service (on non-remote clients)
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - restic-backup.timer
+    - restic-prune.timer
+  when:
+    - not restic_client_is_remote
+
+###
+# Only important in case a client is to be converted from local to remote
+###
+- name: Disable systemd timers for restic service (on remote clients)
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  loop:
+    - restic-backup.timer
+    - restic-prune.timer
+  when:
+    - restic_client_is_remote

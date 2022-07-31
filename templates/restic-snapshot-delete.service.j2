@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Restic snapshot deletion
+Documentation=https://restic.readthedocs.io
+PartOf=restic-backup.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+
+{# Reverse order of commands in 'restic-snapshot-create' service, first unmount #}
+{# all "lower" mountpoints (not-'root'), then 'root' mountpoint. Order of snapshot #}
+{# deletion commands do not matter actually. #}
+{# * 'item[0]' is the mountpoint in the directory tree #}
+{# * 'item[1]' is the path to the LV device underneath '/dev/mapper' and is used #}
+{#    to refer to the origin LV (not used in this template). #}
+{# * 'item[2]' is the name of the volume group. #}
+{# * 'item[3]' is the name of the logical volume. #}
+
+{% for item in _lvm_mounted_devices | sort(reverse=true) %}
+{% if not 'swap' in item[0] and
+      not 'tmp'  in item[0] and
+      not item[3] | regex_search('^backup_') %}
+ExecStart=/bin/umount --verbose {{ restic_client_lvm_snapshot_dir }}/{{ item[0] | replace('/', '', 1) }}
+{% endif %}
+{% endfor %}
+
+{% for item in _lvm_mounted_devices | sort(reverse=true) %}
+{% if not 'swap' in item[0] and
+      not 'tmp'  in item[0] and
+      not item[3] | regex_search('^backup_') %}
+ExecStart=/sbin/lvremove --yes /dev/{{ item[2] }}/backup{{ item[0] | replace('/', '_') }}
+{% endif %}
+{% endfor %}

@@ -1,0 +1,23 @@
+{# barefaced stolen from https://fedoramagazine.org/automate-backups-with-restic-and-systemd/ #}
+# {{ ansible_managed }}
+
+[Unit]
+Description=Restic backup service (data pruning)
+Documentation=https://restic.readthedocs.io
+
+[Service]
+Type=oneshot
+User=restic
+Group=restic
+ExecStart={{ restic_client_bin_dir }}/restic forget \
+		--prune \
+		--verbose \
+		--tag systemd.timer \
+		--group-by "paths,tags" \
+		--keep-daily 14 \
+		--keep-monthly 6 \
+		--keep-yearly 1
+{# Do not start to prune (ExecStart) when doing a systemd service reload. #}
+{# Instead, run this arbitrary command which also proves the repo is working as expected. #}
+ExecReload={{ restic_client_bin_dir }}/restic version
+EnvironmentFile={{ restic_client_config_dir }}/backup.conf

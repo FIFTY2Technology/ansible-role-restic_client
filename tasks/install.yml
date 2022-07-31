@@ -1,0 +1,98 @@
+---
+
+- name: Update package repository - Debian
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 86400
+  become: true
+  when: ansible_os_family == 'Debian'
+
+- name: Update package repository - RedHat
+  ansible.builtin.dnf:
+    update_cache: true
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: fuse
+    state: present
+
+###
+# Downloading is always done. Since it takes roughly the same time to download
+# and then *not* upload it to nodes with up-to-date installations, checks for
+# installed and up-to-date restic versions are not done. Skipping the 'copy'
+# task below is handled by 'copy' itself.
+###
+- name: Download, checksum and unpack restic binary from GitHub
+  block:
+    - name: Get latest release of restic
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/restic/restic/releases/latest"
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+      check_mode: false
+      changed_when: false
+      register: _latest_release
+      retries: 3
+      delay: 5
+
+    - name: Set restic version to {{ _latest_release.json.tag_name[1:] }}
+      ansible.builtin.set_fact:
+        _restic_client_version: "{{ _latest_release.json.tag_name[1:] }}"
+
+    - name: Get checksum list
+      ansible.builtin.set_fact:
+        _restic_client_checksums: "{{ lookup('url', 'https://github.com/restic/restic/releases/download/v' + _restic_client_version + '/SHA256SUMS', wantlist=True) | list }}"
+
+    - name: Filter for checksum of amd64 architecture
+      ansible.builtin.set_fact:
+        _restic_client_checksum: "{{ item.split(' ')[0] }}"
+      loop: "{{ _restic_client_checksums }}"
+      when:
+        - "'linux_amd64.bz2' in item"
+
+    - name: Download latest restic binary from GitHub
+      ansible.builtin.get_url:
+        url: "https://github.com/restic/restic/releases/download/v{{ _restic_client_version }}/restic_{{ _restic_client_version }}_linux_amd64.bz2"
+        dest: "/tmp/restic_{{ _restic_client_version }}_linux_amd64.bz2"
+        checksum: "sha256:{{ _restic_client_checksum }}"
+        mode: '0640'
+      check_mode: false
+      register: _download_archive
+      until: _download_archive is succeeded
+      retries: 3
+      delay: 5
+      notify: Clean up temporary downloads
+
+    ###
+    # 'unarchive' module has no support for compressed files, unfortunately.
+    # See: https://github.com/ansible/community/wiki/Module:-unarchive
+    ###
+    - name: Unpack restic archive
+      ansible.builtin.command:
+        chdir: /tmp
+        cmd: "bunzip2 --decompress --keep restic_{{ _restic_client_version }}_linux_amd64.bz2"
+        creates: "restic_{{ _restic_client_version }}_linux_amd64"
+      check_mode: false
+      notify: Clean up temporary downloads
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+###
+# If the same version got downloaded as is already installed, this module skips
+# automatically. "[...] the parent directory of dest is not created and the task
+# fails if it does not already exist."
+# See https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html#parameter-dest
+###
+- name: Populate restic binary
+  ansible.builtin.copy:
+    src: "/tmp/restic_{{ _restic_client_version }}_linux_amd64"
+    dest: "{{ restic_client_bin_dir }}/restic"
+    owner: root
+    group: restic
+    mode: '0755'
+  check_mode: false

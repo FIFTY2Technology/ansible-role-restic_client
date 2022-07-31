@@ -1,0 +1,69 @@
+---
+
+- name: Template configuration file for restic client
+  ansible.builtin.template:
+    src: templates/backup.conf.j2
+    dest: "{{ restic_client_config_dir }}/backup.conf"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0640'
+
+- name: Copy include- and exclude-files
+  ansible.builtin.template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ restic_client_config_dir }}/{{ item }}"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0640'
+  loop:
+    - includes
+    - excludes
+
+###
+# 'no_log' for all tasks that include a secret
+###
+- name: Template restic remote repository path (to REST server)
+  ansible.builtin.template:
+    src: templates/repository.j2
+    dest: "{{ restic_client_config_dir }}/repository"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0400'
+  no_log: true
+  when:
+    - not restic_client_is_remote
+
+- name: Rollout encryption password
+  ansible.builtin.template:
+    src: templates/password.j2
+    dest: "{{ restic_client_config_dir }}/password"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0400'
+  no_log: true
+
+- name: Template systemd service files
+  ansible.builtin.template:
+    src: "templates/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd
+  loop:
+    - restic-backup.service
+    - restic-prune.service
+
+- name: Template systemd timer files
+  ansible.builtin.template:
+    src: "templates/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd
+    - Enable systemd timers for restic service (on non-remote clients)
+  loop:
+    - restic-backup.timer
+    - restic-prune.timer

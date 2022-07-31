@@ -1,0 +1,44 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Restic snapshot creation
+Documentation=https://restic.readthedocs.io
+PartOf=restic-backup.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+
+{# Create 'ExecStart' commands for 'root' logical volume first, otherwise lower #}
+{# mountpoints (such as /home) will be shadowed. This happens automatically at #}
+{# the creation of the list of to-be-snapshotted-devices, '_lvm_mounted_devices'. #}
+{# To increase the likelyhood of a "perfect" full-system filesystem snapshot, #}
+{# all 'lvcreate' commands are grouped and only mounted after successful creation. #}
+{# * 'item[0]' is the origins mountpoint in the directory tree #}
+{# * 'item[1]' is the path to the LV device underneath '/dev/mapper' and is used #}
+{#    to refer to the origin LV. #}
+{# * 'item[2]' is the name of the volume group. #}
+{# * 'item[3]' is the name of the logical volume. #}
+
+###
+# Naming scheme for snapshot-LVs is: 'backup' plus the original mount-path.
+# Slashes are replaced by underscores to adhere to the LVM naming scheme
+# (see man lvm(8), section 'VALID NAMES'). The advantage of '_' over '-' is that
+# they do not get expanded with more hyphens in '/dev/mapper/' directory.
+###
+{% for item in _lvm_mounted_devices %}
+{% if not 'swap' in item[0] and
+      not 'tmp'  in item[0] and
+      not item[3] | regex_search('^backup_') %}
+ExecStart=/sbin/lvcreate --extents 8%%ORIGIN --snapshot --name backup{{ item[0] | replace('/', '_') }} {{ item[1] }}
+{% endif %}
+{% endfor %}
+
+{% for item in _lvm_mounted_devices %}
+{% if not 'swap' in item[0] and
+      not 'tmp'  in item[0] and
+      not item[3] | regex_search('^backup_') %}
+ExecStart=/bin/mount --verbose /dev/{{ item[2] }}/backup{{ item[0] | replace('/', '_') }} {{ restic_client_lvm_snapshot_dir }}/{{ item[0] | replace('/', '', 1) }}
+{% endif %}
+{% endfor %}

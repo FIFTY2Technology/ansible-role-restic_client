@@ -1,0 +1,8 @@
+{% if restic_client_use_default_excludes | bool %}
+{% for default_exclude in restic_client_default_excludes %}
+{{ default_exclude }}
+{% endfor %}
+{% endif %}
+{% for custom_exclude in restic_client_custom_excludes %}
+{{ custom_exclude }}
+{% endfor %}

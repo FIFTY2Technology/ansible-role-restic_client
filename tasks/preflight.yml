@@ -1,0 +1,70 @@
+---
+
+###
+# Creates a system user account
+###
+- name: Create backup user
+  ansible.builtin.user:
+    name: "{{ restic_client_user }}"
+    password: '*'
+    system: true
+    home: "{{ restic_client_home }}"
+    shell: /bin/bash
+    state: present
+
+- name: Create directory for restic config files and cache
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0750'
+    state: directory
+  loop:
+    - "{{ restic_client_config_dir }}"
+    - "{{ restic_client_home }}/.cache"
+
+###
+# This task makes it easier to run 'restic' commands as the backup user (restic).
+# It sources the environment variables necessary to run the 'restic' command from
+# the file that holds the vars for the systemd service (see 'EnvironmentFile'
+# option in the service file).
+# To use restic, do 'su - restic' and then e.g. 'restic snapshots'
+###
+- name: Export environment variables for login shells
+  ansible.builtin.blockinfile:
+    path: "{{ restic_client_home }}/.bash_profile"
+    marker: "# {mark} ANSIBLE MANAGED restic env BLOCK"
+    block: |
+      # include environment variables if backup.conf exists
+      if [ -e "{{ restic_client_config_dir }}/backup.conf" ] ; then
+          . "{{ restic_client_config_dir }}/backup.conf"
+          export RESTIC_REPOSITORY_FILE
+          export RESTIC_PASSWORD_FILE
+      fi
+    state: present
+    create: true
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0640'
+
+###
+# From gathered facts 'ansible_mounts', consider all mounts that have a
+# device-path starting with '/dev/mapper/'.
+#   * '_lvm_devices' picks the device (e.g. '/dev/mapper/something')
+#   * '_lvm_mounts' picks the mountpoint (e.g. '/home'
+# Together, since they are both sorted by attribute 'mount', they already have
+# the correct order in which their snapshots will need to be mounted later. The
+# list will be used in reversed order for unmounting (see '_lvm_do_backup_reversed').
+###
+- name: Get a list of all devices and mountpoints associated with LVM
+  ansible.builtin.set_fact:
+    _lvm_devices: "{{ ansible_mounts \
+      | selectattr('device', 'match', '^/dev/mapper/.*$') \
+      | sort(attribute='mount') \
+      | map(attribute='device') \
+      | list }}"
+    _lvm_mounts: "{{ ansible_mounts \
+      | selectattr('device', 'match', '^/dev/mapper/.*$') \
+      | sort(attribute='mount') \
+      | map(attribute='mount') \
+      | list }}"

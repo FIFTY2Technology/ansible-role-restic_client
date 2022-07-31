@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+### This file will get sourced through a shell or systemd service file for all restic operations.
+
+### The file containing the repository location
+RESTIC_REPOSITORY_FILE="{{ restic_client_config_dir }}/repository"
+
+### The file containing the password that is used for client-side encryption of backup data
+RESTIC_PASSWORD_FILE="{{ restic_client_config_dir }}/password"

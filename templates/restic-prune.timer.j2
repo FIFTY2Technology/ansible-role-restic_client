@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Prune data from the restic repository weekly
+
+###
+# Fire every week on saturday at 04:00 oclock with a random delay of up to
+# three hours. There should be no overlapping anymore with running backups at
+# that time.
+# Latest possible time a backup could start is at 03:00:00, and it would have
+# to run more than one hour (pretty unlikely to happen with a non-initial
+# backup) to produce an overlap with a prune operation starting with zero
+# seconds delay.
+###
+[Timer]
+OnCalendar=Sat 04:00:00
+RandomizedDelaySec=10800
+FixedRandomDelay=true
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,13 @@
+---
+
+- ansible.builtin.import_tasks: preflight.yml
+
+- ansible.builtin.import_tasks: install.yml
+
+- ansible.builtin.import_tasks: configure_lvm_snapshots.yml
+  when:
+    - restic_client_use_lvm
+    - ansible_lvm is defined
+    - _lvm_devices | length > 0
+
+- ansible.builtin.import_tasks: configure_restic.yml

@@ -1,0 +1,108 @@
+---
+
+###
+# This prevents restic from reading files inside the LVM snapshot directory.
+# Due to deduplication it does not harm including those files, but the filecount
+# doubles. Also, good for general clearness.
+###
+- name: Set LVM snapshot mount directory to be excluded from backups
+  ansible.builtin.set_fact:
+    restic_client_default_excludes: "{{ restic_client_default_excludes + [ restic_client_lvm_snapshot_dir ] }}"
+
+###
+# Get back a single line with information about the volume group name and
+# logical volume name, separated by '/', so we don't need to separate on two
+# different field separators. See man dmsetup(8) for more information.
+# Example:
+# ~# dmsetup splitname --noheadings --separator='/' /dev/mapper/my--vg-root LVM
+#  /dev/mapper/my-vg/root/
+# Field 3 is the volume group's name, field 4 is the logical volume's name.
+###
+- name: Get information about VG name from 'dmsetup' command
+  ansible.builtin.command:
+    cmd: "dmsetup splitname --noheadings --separator='/' {{ dm_device }} LVM"
+  register: _dmsetup_output
+  loop: "{{ _lvm_devices }}"
+  loop_control:
+    loop_var: dm_device
+  changed_when: false
+  check_mode: false
+
+###
+# The volume group's names are required so that a path to the snapshot volume,
+# that is going to be mounted, can be constructed ('/dev/<vg_name>/<lv_name>').
+# The logical volume's names are not actually required so far, but used in the
+# templates as a safety guard to skip all LVs which have a name that starts with
+# 'backup_'.
+###
+- name: Extract information about LVM from previous task
+  ansible.builtin.set_fact:
+    _lvm_vg_names: "{{ _lvm_vg_names \
+      | default([]) \
+      + [ item.stdout.split('/')[3] ] }}"
+    _lvm_lv_names: "{{ _lvm_lv_names \
+      | default([]) \
+      + [ item.stdout.split('/')[4] ] }}"
+  loop: "{{ _dmsetup_output.results }}"
+  loop_control:
+    label: "{{ item.dm_device }}"
+
+###
+# The 'list' filter doesn't seem to be necessary here for the sorting to be
+# correct. It is important to 'zip' this way, and not the other way around, so
+# 'sort' can do its job on the first element of each sub-list (the mountpoint,
+# not the device path) later in the template files.
+# This list is used in the 'templates/restic-snapshot-create.service.j2'
+# systemd service template file, and used in reverse-sorted order in the
+# 'templates/restic-snapshot-delete.service.j2' systemd service template file.
+# Exclution of LVs names including 'swap' or 'tmp' is done inside the templates.
+###
+- name: Link together LVM devices and mountpoints
+  ansible.builtin.set_fact:
+    _lvm_mounted_devices: "{{ _lvm_mounts \
+      | zip(_lvm_devices, _lvm_vg_names, _lvm_lv_names) \
+      | list }}"
+
+- name: Create folder for snapshot mounts of logical volumes
+  ansible.builtin.file:
+    path: "{{ restic_client_lvm_snapshot_dir }}/"
+    state: directory
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0750'
+
+- name: Template systemd service files for snapshot handling
+  ansible.builtin.template:
+    src: "templates/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - restic-snapshot-create.service
+    - restic-snapshot-delete.service
+  notify:
+    - Reload systemd
+
+###
+# Add systemd service drop-in directory. Files in there with '.conf' suffix will
+# be parsed as part of the service file. Allows easy expansion and altering of
+# existing systemd service files without altering the original service file.
+###
+- name: Create drop-in directory for restic-backup.service
+  ansible.builtin.file:
+    path: /etc/systemd/system/restic-backup.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Configure restic-backup.service to run LVM-related services around itself
+  ansible.builtin.template:
+    src: restic-backup.service.d/lvm.conf.j2
+    dest: /etc/systemd/system/restic-backup.service.d/lvm.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Reload systemd

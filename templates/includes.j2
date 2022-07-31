@@ -1,0 +1,8 @@
+{% if restic_client_use_default_includes | bool %}
+{% for default_include in restic_client_default_includes %}
+{{ default_include }}
+{% endfor %}
+{% endif %}
+{% for custom_include in restic_client_custom_includes %}
+{{ custom_include }}
+{% endfor %}
