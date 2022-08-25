@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+
+  vars:
+    backup_server: backup.example.com
+
+  tasks:
+    - name: "Include molecule-default-scenario"
+      ansible.builtin.include_role:
+        name: "molecule-default-scenario"
