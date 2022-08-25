@@ -1,0 +1,28 @@
+---
+
+galaxy_info:
+  role_name: restic_client
+  namespace: fifty2technology
+  description: Installs restic and configures it to do a full system backup every night.
+  author: FIFTY2 Technology GmbH
+  company: FIFTY2 Technology GmbH
+  license: GPL-3.0-only
+  min_ansible_version: 2.11
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+    - name: EL
+      versions:
+        - 8
+        - 9
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+  galaxy_tags:
+    - system
+    - backup
+    - restic
