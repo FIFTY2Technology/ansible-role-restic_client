@@ -94,3 +94,9 @@ restic_client_custom_excludes: []
 # Default: false
 ###
 restic_client_is_remote: false
+
+###
+# Do not show sensible content when printed by 'ansible-playbook' runs.
+# Set to 'false' for debugging e.g. repository file templating.
+###
+restic_client_no_log: true

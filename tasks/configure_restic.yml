@@ -29,7 +29,7 @@
     owner: "{{ restic_client_user }}"
     group: "{{ restic_client_group }}"
     mode: '0400'
-  no_log: true
+  no_log: "{{ restic_client_no_log }}"
   when:
     - not restic_client_is_remote
 
@@ -40,7 +40,7 @@
     owner: "{{ restic_client_user }}"
     group: "{{ restic_client_group }}"
     mode: '0400'
-  no_log: true
+  no_log: "{{ restic_client_no_log }}"
 
 - name: Template systemd service files
   ansible.builtin.template:
