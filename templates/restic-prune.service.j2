@@ -13,7 +13,7 @@ ExecStart={{ restic_client_bin_dir }}/restic forget \
 		--prune \
 		--verbose \
 		--tag systemd.timer \
-		--group-by "paths,tags" \
+		--group-by '' \
 		--keep-daily 14 \
 		--keep-monthly 6 \
 		--keep-yearly 1
