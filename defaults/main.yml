@@ -51,8 +51,8 @@ restic_client_backup_server_port: 3000
 restic_client_use_lvm: true
 
 ###
-# Directory to mount snapshots into during backup process
-# Only used if LVM is detected on the target system
+# Directory to temporarily mount snapshots into during backup process.
+# Only used if LVM is detected on the target system.
 ###
 restic_client_lvm_snapshot_dir: "{{ restic_client_home }}/snapshots"
 
@@ -74,6 +74,12 @@ restic_client_default_includes:
   - /
 restic_client_custom_includes: []
 
+###
+# The directory 'restic_client_lvm_snapshot_dir' will be automatically added to
+# the list of excluded directories if LVM is used. This prevents restic to
+# backup those directories, which would result in roughly double the number of
+# files per snapshot. (Snapshot size would not be affected thanks to deduplication)
+###
 restic_client_use_default_excludes: true
 restic_client_default_excludes:
   - /dev
