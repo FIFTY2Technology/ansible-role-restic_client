@@ -9,6 +9,7 @@ If LVM is detected on a node, automatic creation of snapshots is included as par
 * LVM logical volumes with `swap` or `tmp` in their names are not included.
 * At least 8 (eight) percent of the origins LV size must be free space in the LVM volume group for snapshots. A good estimate is to not let logical volumes (LVs) take more than 90 percent of the available space in a volume group (VG), or 10% free extents and you should be good to go.
 * Only logical volumes are considered that are mounted at the time of the playbook run. To add or remove LVs, mount/umount them and rerun the playbook.
+* Tested with ext4 and xfs filesystems on LVM.
 
 ## Remote pull-style backups
 Backups can be triggered by the backup server, if a client cannot reach the backup server directly. (e.g. due to firewall rules, NAT, etc.) For this, the client must be deployed with `restic_client_is_remote: true` option. This functionality is only tested on a server deployed with the `restic_server` role.

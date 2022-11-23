@@ -50,21 +50,16 @@
 ###
 # From gathered facts 'ansible_mounts', consider all mounts that have a
 # device-path starting with '/dev/mapper/'.
-#   * '_lvm_devices' picks the device (e.g. '/dev/mapper/something')
-#   * '_lvm_mounts' picks the mountpoint (e.g. '/home'
-# Together, since they are both sorted by attribute 'mount', they already have
-# the correct order in which their snapshots will need to be mounted later. The
-# list will be used in reversed order for unmounting (see '_lvm_do_backup_reversed').
+# Since the items are sorted by attribute 'mount', they already have
+# the correct order in which their snapshots will need to be mounted later.
+# More useful fields will be extracted in 'tasks/configure_lvm_snapshots.yml',
+# but we need to create this variable in here already, so we can check for
+# existing LVM volumes in 'tasks/main.yml' and conditionally include 'tasks/
+# configure_lvm_snapshots.yml'.
 ###
 - name: Get a list of all devices and mountpoints associated with LVM
   ansible.builtin.set_fact:
-    _lvm_devices: "{{ ansible_mounts \
+    _lvm_attributes: "{{ ansible_mounts \
       | selectattr('device', 'match', '^/dev/mapper/.*$') \
       | sort(attribute='mount') \
-      | map(attribute='device') \
-      | list }}"
-    _lvm_mounts: "{{ ansible_mounts \
-      | selectattr('device', 'match', '^/dev/mapper/.*$') \
-      | sort(attribute='mount') \
-      | map(attribute='mount') \
       | list }}"

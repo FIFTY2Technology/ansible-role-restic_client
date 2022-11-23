@@ -10,6 +10,20 @@
     restic_client_default_excludes: "{{ restic_client_default_excludes + [ restic_client_lvm_snapshot_dir ] }}"
 
 ###
+# From list '_lvm_attributes', extract fields that are actual useful for mounting.
+#   * '_lvm_mounts' picks the mountpoint (e.g. '/home'). Used for naming snapshots.
+#   * '_lvm_devices' picks the device (e.g. '/dev/mapper/something'). Used as
+#      snapshot source.
+#   * '_lvm_fstypes' picks the filesystem type (e.g. 'ext4'). Used for setting
+#      extra mount options (e.g. for xfs).
+###
+- name: Extract useful information from gathered mounted devices
+  set_fact:
+    _lvm_mounts: "{{ _lvm_attributes | map(attribute='mount') }}"
+    _lvm_devices: "{{ _lvm_attributes | map(attribute='device') }}"
+    _lvm_fstypes: "{{ _lvm_attributes | map(attribute='fstype') }}"
+
+###
 # Get back a single line with information about the volume group name and
 # logical volume name, separated by '/', so we don't need to separate on two
 # different field separators. See man dmsetup(8) for more information.
@@ -56,11 +70,33 @@
 # systemd service template file, and used in reverse-sorted order in the
 # 'templates/restic-snapshot-delete.service.j2' systemd service template file.
 # Exclution of LVs names including 'swap' or 'tmp' is done inside the templates.
+# Example '_lvm_mounted_devices':
+#   [
+#      "/",
+#      "/dev/mapper/debian--vg-root",
+#      "debian-vg",
+#      "root",
+#      "ext4"
+#  ],
+#  [
+#      "/home",
+#      "/dev/mapper/debian--vg-home",
+#      "debian-vg",
+#      "home",
+#      "ext4"
+#  ],
+#  [
+#      "/srv",
+#      "/dev/mapper/new_vg-volume1",
+#      "new_vg",
+#      "volume1",
+#      "xfs"
+#  ]
 ###
 - name: Link together LVM devices and mountpoints
   ansible.builtin.set_fact:
     _lvm_mounted_devices: "{{ _lvm_mounts \
-      | zip(_lvm_devices, _lvm_vg_names, _lvm_lv_names) \
+      | zip(_lvm_devices, _lvm_vg_names, _lvm_lv_names, _lvm_fstypes) \
       | list }}"
 
 - name: Create folder for snapshot mounts of logical volumes
