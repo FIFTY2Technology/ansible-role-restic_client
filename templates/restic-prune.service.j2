@@ -7,8 +7,8 @@ Documentation=https://restic.readthedocs.io
 
 [Service]
 Type=oneshot
-User=restic
-Group=restic
+User={{ restic_client_user }}
+Group={{ restic_client_group }}
 ExecStart={{ restic_client_bin_dir }}/restic forget \
 		--prune \
 		--verbose \
