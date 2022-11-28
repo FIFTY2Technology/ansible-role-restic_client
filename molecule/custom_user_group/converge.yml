@@ -6,8 +6,11 @@
     backup_server: backup.example.com
     ### We can't test LVM behaviour inside containers, it would use the hosts LVM.
     restic_client_use_lvm: false
+    ### set username and groupname
+    restic_client_user: lololol
+    restic_client_group: backup
 
   tasks:
-    - name: "Include molecule-default-scenario"
+    - name: "Include molecule-custom_user_group-scenario"
       ansible.builtin.include_role:
         name: "fifty2technology.restic_client"
