@@ -35,6 +35,22 @@
     - "{{ restic_client_home }}/.cache"
 
 ###
+# Add systemd service drop-in directory. Files in there with '.conf' suffix will
+# be parsed as part of the service file. Allows easy expansion and altering of
+# existing systemd service files without altering the original service file.
+# Currently used for:
+#   * LVM snapshots configuration (lvm.conf)
+#   * Custom commands prior to the backup (prepare.conf)
+###
+- name: Create drop-in directory for restic-backup.service
+  ansible.builtin.file:
+    path: /etc/systemd/system/restic-backup.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+###
 # This task makes it easier to run 'restic' commands as the backup user (restic).
 # It sources the environment variables necessary to run the 'restic' command from
 # the file that holds the vars for the systemd service (see 'EnvironmentFile'
