@@ -93,6 +93,6 @@
     src: "/tmp/restic_{{ _restic_client_version }}_linux_amd64"
     dest: "{{ restic_client_bin_dir }}/restic"
     owner: root
-    group: restic
+    group: "{{ restic_client_group }}"
     mode: '0755'
   check_mode: false

@@ -1,6 +1,16 @@
 ---
 
 ###
+# Create group first. In case 'restic_client_user' and 'restic_client_group' are
+# not the same name, group has to exist and will not get created in task below.
+###
+- name: Create backup group
+  ansible.builtin.group:
+    name: "{{ restic_client_group }}"
+    system: true
+    state: present
+
+###
 # Creates a system user account
 ###
 - name: Create backup user
@@ -8,6 +18,7 @@
     name: "{{ restic_client_user }}"
     password: '*'
     system: true
+    group: "{{ restic_client_group }}"
     home: "{{ restic_client_home }}"
     shell: /bin/bash
     state: present
