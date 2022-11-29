@@ -114,11 +114,10 @@
     owner: root
     group: root
     mode: '0644'
+  notify: Reload systemd
   loop:
     - restic-snapshot-create.service
     - restic-snapshot-delete.service
-  notify:
-    - Reload systemd
 
 - name: Configure restic-backup.service to run LVM-related services around itself
   ansible.builtin.template:
@@ -127,5 +126,4 @@
     owner: root
     group: root
     mode: '0644'
-  notify:
-    - Reload systemd
+  notify: Reload systemd
