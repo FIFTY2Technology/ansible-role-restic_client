@@ -7,7 +7,7 @@
 ###
 - name: Set LVM snapshot mount directory to be excluded from backups
   ansible.builtin.set_fact:
-    restic_client_default_excludes: "{{ restic_client_default_excludes + [ restic_client_lvm_snapshot_dir ] }}"
+    restic_client_default_excludes: "{{ restic_client_default_excludes + [restic_client_lvm_snapshot_dir] }}"
 
 ###
 # From list '_lvm_attributes', extract fields that are actual useful for mounting.
@@ -18,7 +18,7 @@
 #      extra mount options (e.g. for xfs).
 ###
 - name: Extract useful information from gathered mounted devices
-  set_fact:
+  ansible.builtin.set_fact:
     _lvm_mounts: "{{ _lvm_attributes | map(attribute='mount') }}"
     _lvm_devices: "{{ _lvm_attributes | map(attribute='device') }}"
     _lvm_fstypes: "{{ _lvm_attributes | map(attribute='fstype') }}"
@@ -53,10 +53,10 @@
   ansible.builtin.set_fact:
     _lvm_vg_names: "{{ _lvm_vg_names \
       | default([]) \
-      + [ item.stdout.split('/')[3] ] }}"
+      + [item.stdout.split('/')[3]] }}"
     _lvm_lv_names: "{{ _lvm_lv_names \
       | default([]) \
-      + [ item.stdout.split('/')[4] ] }}"
+      + [item.stdout.split('/')[4]] }}"
   loop: "{{ _dmsetup_output.results }}"
   loop_control:
     label: "{{ item.dm_device }}"

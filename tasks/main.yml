@@ -1,13 +1,17 @@
 ---
 
-- ansible.builtin.import_tasks: preflight.yml
+- name: Import task preflight.yml
+  ansible.builtin.import_tasks: preflight.yml
 
-- ansible.builtin.import_tasks: install.yml
+- name: Import task install.yml
+  ansible.builtin.import_tasks: install.yml
 
-- ansible.builtin.import_tasks: configure_lvm_snapshots.yml
+- name: Import task configure_lvm_snapshots.yml
+  ansible.builtin.import_tasks: configure_lvm_snapshots.yml
   when:
     - restic_client_use_lvm
     - ansible_lvm is defined
     - _lvm_attributes | length > 0
 
-- ansible.builtin.import_tasks: configure_restic.yml
+- name: Import task configure_restic.yml
+  ansible.builtin.import_tasks: configure_restic.yml
