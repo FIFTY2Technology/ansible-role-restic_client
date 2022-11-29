@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Custom commands in preparation for restic backup
+PartOf=restic-backup.service
+{# systemd seems fine with 'After=' and 'Before=' statements of non-existing
+   services. This means we can always include the 'restic-snapshot-create' job,
+   whether it exists or not, and whatever it contains (LVM or future other
+   snapshot creations). Ref: https://serverfault.com/a/1096424 #}
+Before=restic-snapshot-create.service
+Before=restic-backup.service
+
+[Service]
+Type=oneshot
+User={{ restic_client_user }}
+Group={{ restic_client_group }}
+WorkingDirectory=~
+{% for command in restic_client_custom_prepare_commands %}
+ExecStart={{ command }}
+{% endfor %}

@@ -67,3 +67,24 @@
   loop:
     - restic-backup.timer
     - restic-prune.timer
+
+- name: Configure restic-prepare systemd service
+  block:
+    - name: Template restic-prepare systemd service file
+      ansible.builtin.template:
+        src: templates/restic-prepare.service.j2
+        dest: /etc/systemd/system/restic-prepare.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Configure restic-backup.service to run restic-prepare.service before
+      ansible.builtin.template:
+        src: restic-backup.service.d/prepare.conf.j2
+        dest: /etc/systemd/system/restic-backup.service.d/prepare.conf
+        owner: root
+        group: root
+        mode: '0644'
+  notify: Reload systemd
+  when:
+    - restic_client_custom_prepare_commands | length > 0
