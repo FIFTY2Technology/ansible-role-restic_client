@@ -1,0 +1,5 @@
+ansible  # required for passwordstore lookup plugin
+yamllint
+ansible-lint
+molecule  # optional for testing
+molecule[podman]

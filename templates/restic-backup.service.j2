@@ -17,7 +17,7 @@ ExecStart={{ restic_client_bin_dir }}/restic backup \
 		  --exclude-caches \
 		  --files-from={{ restic_client_config_dir }}/includes \
 		  --exclude-file={{ restic_client_config_dir }}/excludes
-{# Do not start a backup run (ExecStart) when doing a systemd service reload. #}
-{# Instead, run this arbitrary command which also proves the repo is working as expected. #}
+{# Do not start a backup run (ExecStart) when doing a systemd service reload.
+   Instead, run this arbitrary command which also proves the repo is working as expected. #}
 ExecReload={{ restic_client_bin_dir }}/restic version
 EnvironmentFile={{ restic_client_config_dir }}/backup.conf

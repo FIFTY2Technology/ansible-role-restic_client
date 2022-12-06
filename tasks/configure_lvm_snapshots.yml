@@ -7,7 +7,7 @@
 ###
 - name: Set LVM snapshot mount directory to be excluded from backups
   ansible.builtin.set_fact:
-    restic_client_default_excludes: "{{ restic_client_default_excludes + [ restic_client_lvm_snapshot_dir ] }}"
+    restic_client_default_excludes: "{{ restic_client_default_excludes + [restic_client_lvm_snapshot_dir] }}"
 
 ###
 # From list '_lvm_attributes', extract fields that are actual useful for mounting.
@@ -18,7 +18,7 @@
 #      extra mount options (e.g. for xfs).
 ###
 - name: Extract useful information from gathered mounted devices
-  set_fact:
+  ansible.builtin.set_fact:
     _lvm_mounts: "{{ _lvm_attributes | map(attribute='mount') }}"
     _lvm_devices: "{{ _lvm_attributes | map(attribute='device') }}"
     _lvm_fstypes: "{{ _lvm_attributes | map(attribute='fstype') }}"
@@ -53,10 +53,10 @@
   ansible.builtin.set_fact:
     _lvm_vg_names: "{{ _lvm_vg_names \
       | default([]) \
-      + [ item.stdout.split('/')[3] ] }}"
+      + [item.stdout.split('/')[3]] }}"
     _lvm_lv_names: "{{ _lvm_lv_names \
       | default([]) \
-      + [ item.stdout.split('/')[4] ] }}"
+      + [item.stdout.split('/')[4]] }}"
   loop: "{{ _dmsetup_output.results }}"
   loop_control:
     label: "{{ item.dm_device }}"
@@ -114,31 +114,16 @@
     owner: root
     group: root
     mode: '0644'
+  notify: Reload systemd
   loop:
     - restic-snapshot-create.service
     - restic-snapshot-delete.service
-  notify:
-    - Reload systemd
-
-###
-# Add systemd service drop-in directory. Files in there with '.conf' suffix will
-# be parsed as part of the service file. Allows easy expansion and altering of
-# existing systemd service files without altering the original service file.
-###
-- name: Create drop-in directory for restic-backup.service
-  ansible.builtin.file:
-    path: /etc/systemd/system/restic-backup.service.d
-    state: directory
-    owner: root
-    group: root
-    mode: '0750'
 
 - name: Configure restic-backup.service to run LVM-related services around itself
   ansible.builtin.template:
-    src: restic-backup.service.d/lvm.conf.j2
+    src: templates/restic-backup.service.d/lvm.conf.j2
     dest: /etc/systemd/system/restic-backup.service.d/lvm.conf
     owner: root
     group: root
     mode: '0644'
-  notify:
-    - Reload systemd
+  notify: Reload systemd
