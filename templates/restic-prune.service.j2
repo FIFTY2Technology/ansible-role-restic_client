@@ -17,7 +17,7 @@ ExecStart={{ restic_client_bin_dir }}/restic forget \
 		--keep-daily 14 \
 		--keep-monthly 6 \
 		--keep-yearly 1
-{# Do not start to prune (ExecStart) when doing a systemd service reload. #}
-{# Instead, run this arbitrary command which also proves the repo is working as expected. #}
+{# Do not start to prune (ExecStart) when doing a systemd service reload.
+   Instead, run this arbitrary command which also proves the repo is working as expected. #}
 ExecReload={{ restic_client_bin_dir }}/restic version
 EnvironmentFile={{ restic_client_config_dir }}/backup.conf
