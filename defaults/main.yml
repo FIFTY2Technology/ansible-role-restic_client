@@ -108,12 +108,15 @@ restic_client_is_remote: false
 restic_client_no_log: true
 
 ###
-# Run custom commands as the 'restic_client_user' prior to the backup. Output
+# Run custom commands as the `restic_client_user` prior to the backup. Output
 # files will be included in the backup snapshot in that user's home directory,
-# unless an absolute path is specified explicitly in a command. Stdout and stderr
-# will be visible in logs (journald). Shell syntax is not fully supported, see:
+# unless an absolute path is specified explicitly for the output file in a
+# command. Stdout and stderr will be visible in logs (journald). Shell syntax
+# is not fully supported, see:
 # https://www.freedesktop.org/software/systemd/man/systemd.service.html#Command%20lines
-# If one command fails, the backup fails.
+# Older distributions/versions of systemd don't accept relative paths (e.g.
+# Ubuntu 18.04 with systemd 237), use absolute paths instead. If one command
+# fails, the backup fails and won't start.
 ###
 restic_client_custom_prepare_commands: []
-#   - mysqldump --result-file=dump.sql mydatabase
+#   - /usr/bin/mysqldump --result-file=dump.sql mydatabase
