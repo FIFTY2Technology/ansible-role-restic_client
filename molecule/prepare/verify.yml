@@ -6,7 +6,8 @@
 
   tasks:
     ###
-    # Ignore errors, it will fail due to 'false' in 'restic_client_custom_prepare_commands'.
+    # Ignore errors, it will fail due to '/usr/bin/false' command in
+    # 'restic_client_custom_prepare_commands'.
     ###
     - name: Start restic-backup.service (intentionally broken)
       ansible.builtin.systemd:
@@ -24,6 +25,7 @@
       ansible.builtin.assert:
         that:
           - _testfile.stat.exists
+        success_msg: "Testfile found"
 
     ###
     # If this fails, the exact error (deviating from the expected output) will
@@ -37,3 +39,4 @@
           - "'dependency job for restic-backup.service failed.' in _service_start.msg"
           - _service_start.failed
         fail_msg: "{{ _service_start.msg }}"
+        success_msg: "Service failed successfully (for the correct reason)"
