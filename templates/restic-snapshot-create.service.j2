@@ -4,6 +4,11 @@
 Description=Restic snapshot creation
 Documentation=https://restic.readthedocs.io
 PartOf=restic-backup.service
+{% if restic_client_custom_prepare_commands | lenght > 0 %}
+{# Ensure correct order of services. #}
+Requires=restic-prepare.service
+After=restic-prepare.service
+{% endif %}
 
 [Service]
 Type=oneshot

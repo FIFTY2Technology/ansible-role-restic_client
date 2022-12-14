@@ -1,0 +1,42 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    ###
+    # Ignore errors, it will fail due to '/usr/bin/false' command in
+    # 'restic_client_custom_prepare_commands'.
+    ###
+    - name: Start restic-backup.service (intentionally broken)
+      ansible.builtin.systemd:
+        name: restic-backup.service
+        state: started
+      register: _service_start
+      ignore_errors: true
+
+    - name: Check if restic-prepare.service ran and created its file
+      ansible.builtin.stat:
+        path: /home/restic/testfile
+      register: _testfile
+
+    - name: Assert that testfile got created
+      ansible.builtin.assert:
+        that:
+          - _testfile.stat.exists
+        success_msg: "Testfile found"
+
+    ###
+    # If this fails, the exact error (deviating from the expected output) will
+    # be printed. This might be the case for example if relative command paths
+    # are used for 'restic_client_custom_prepare_commands' on Ubuntu 18.04 with
+    # systemd 237, which are not supported there.
+    ###
+    - name: Check status of restic-backup.service
+      ansible.builtin.assert:
+        that:
+          - "'dependency job for restic-backup.service failed.' in _service_start.msg"
+          - _service_start.failed
+        fail_msg: "{{ _service_start.msg }}"
+        success_msg: "Service failed successfully (for the correct reason)"

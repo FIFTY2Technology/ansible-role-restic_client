@@ -1,0 +1,17 @@
+---
+- name: Converge
+  hosts: all
+
+  vars:
+    backup_server: backup.example.com
+    ### We can't test LVM behaviour inside containers, it would use the hosts LVM.
+    restic_client_use_lvm: false
+    ### '/usr/bin/false' will let the 'restic-prepare.service' fail
+    restic_client_custom_prepare_commands:
+      - /usr/bin/touch testfile
+      - /usr/bin/false
+
+  tasks:
+    - name: "Include molecule-default-scenario"
+      ansible.builtin.include_role:
+        name: "fifty2technology.restic_client"

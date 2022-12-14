@@ -1,4 +1,9 @@
 ---
 
+exclude_paths:
+  - ./elias
+  - ./fix
+  - ./venv
+
 skip_list:
   - experimental

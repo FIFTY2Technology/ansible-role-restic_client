@@ -61,6 +61,7 @@
         checksum: "sha256:{{ _restic_client_checksum }}"
         mode: '0640'
       check_mode: false
+      changed_when: false
       register: _download_archive
       until: _download_archive is succeeded
       retries: 3
@@ -77,6 +78,7 @@
         cmd: "bunzip2 --decompress --keep restic_{{ _restic_client_version }}_linux_amd64.bz2"
         creates: "restic_{{ _restic_client_version }}_linux_amd64"
       check_mode: false
+      changed_when: false
       notify: Clean up temporary downloads
   delegate_to: localhost
   become: false

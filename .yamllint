@@ -2,6 +2,11 @@
 # Based on ansible-lint config
 extends: default
 
+ignore: |
+  elias/
+  fix/
+  venv/
+
 rules:
   braces:
     max-spaces-inside: 1
