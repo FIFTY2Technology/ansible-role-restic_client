@@ -80,6 +80,8 @@ REST-passwords of clients are rolled out to the REST server as part of the `rest
 ## Example CLI usage of `restic` command
 To use the `restic` command on the client's CLI, it is best to switch to the `restic` user, since it will have `RESTIC_REPOSITORY_FILE` and `RESTIC_PASSWORD_FILE` environment variables sourced automatically.
 
+For showing the output of all involved services, you can use `journalctl -tf restic`, which follows the syslog identifier `restic` (configured for all `restic-*` services).
+
 # Known Limitations
 ## Single backup server
 Currently, in our infrastructure, there is only one (productive) backup server and restic itself doesn't know how to handle multiple backup targets.
