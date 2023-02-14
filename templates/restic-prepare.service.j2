@@ -18,3 +18,4 @@ WorkingDirectory=~
 {% for command in restic_client_custom_prepare_commands %}
 ExecStart={{ command }}
 {% endfor %}
+SyslogIdentifier=restic

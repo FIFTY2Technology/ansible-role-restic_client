@@ -52,3 +52,4 @@ ExecStart=/sbin/lvcreate --extents 8%%ORIGIN --snapshot --name backup{{ item[0] 
 ExecStart=/bin/mount{{ _mount_options }} --verbose /dev/{{ item[2] }}/backup{{ item[0] | replace('/', '_') }} {{ restic_client_lvm_snapshot_dir }}/{{ item[0] | replace('/', '', 1) }}
 {% endif %}
 {% endfor %}
+SyslogIdentifier=restic
