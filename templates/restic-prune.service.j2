@@ -21,3 +21,4 @@ ExecStart={{ restic_client_bin_dir }}/restic forget \
    Instead, run this arbitrary command which also proves the repo is working as expected. #}
 ExecReload={{ restic_client_bin_dir }}/restic version
 EnvironmentFile={{ restic_client_config_dir }}/backup.conf
+SyslogIdentifier=restic
