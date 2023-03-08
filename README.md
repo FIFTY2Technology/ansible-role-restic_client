@@ -7,7 +7,8 @@ It creates a systemd service file `restic-backup.service` that runs periodically
 If LVM is detected on a node, automatic creation of snapshots is included as part of the backup process.
 * `restic-backup.service` will be run inside a chroot of the mounted `/`-snapshot, with more snapshots mounted below, as applicable.
 * LVM logical volumes with `swap` or `tmp` in their names are not included.
-* At least 8 (eight) percent of the origins LV size must be free space in the LVM volume group for snapshots. A good estimate is to not let logical volumes (LVs) take more than 90 percent of the available space in a volume group (VG), or 10% free extents and you should be good to go.
+* At least 8 (eight) percent of the origins LV size must be free space in the LVM volume group for snapshots. A good estimate is to not let logical volumes (LVs) take more than 90 percent of the available space in a volume group (VG), or 10% free extents and you should be good to go. More is better, see point below.
+* To prevent failing backups due to full and invalidated snapshots, LVM gets configured to automatically extend snapshot sizes once they reach 80 percent capacity (can be disabled).
 * Only logical volumes are considered that are mounted at the time of the playbook run. To add or remove LVs, mount/umount them and rerun the playbook.
 * Tested with ext4 and xfs filesystems on LVM.
 
@@ -43,6 +44,7 @@ All variables which can be overridden are stored in defaults/main.yml file as we
 | `restic_client_backup_server_port` | 3000 | Specify backup REST server port to use as remote target |
 | `restic_client_use_lvm` | true | Use LVM if available on the client. Can only be disabled explicitly when the use of LVM snapshots is not wished (and in case LVM is present), but cannot enable LVM functionality when no LVM is present on the client. Useful e.g. if a pre-existing VG does not have any free physical extends (PE) available for snapshots. |
 | `restic_client_lvm_snapshot_dir` | `"{{ restic_client_home }}/snapshots"` | Directory to mount snapshots into during backup process. Only used if LVM is detected on the target system |
+| `restic_client_lvm_allow_edit_lvmconf` | true |  It's hard to guess whether a setting in `/etc/lvm/lvm.conf` is already set to a non-default value, so if you edited this file otherwise and want to keep your config, set this to `false`.<br/>Used for:<br/>* Configure LVM to automatically extend snapshot sizes if they reach 80 percent capacity. Can only extend snapshots as long as there are LVM extents available. |
 | `restic_client_use_default_includes` | true | Set to false to ignore (not use) directories listed in `restic_client_default_includes`. You should define your own directories via `restic_client_custom_includes` then. |
 | `restic_client_default_includes` | `/` | List of directories to include into backups by default, as long as not ignored via `restic_client_use_default_includes: false`. |
 | `restic_client_custom_includes` | `[]` | List of directories to include into backups. Always used and appended to (if not ignored) `restic_client_default_includes`. |

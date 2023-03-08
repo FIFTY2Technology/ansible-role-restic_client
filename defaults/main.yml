@@ -57,6 +57,16 @@ restic_client_use_lvm: true
 restic_client_lvm_snapshot_dir: "{{ restic_client_home }}/snapshots"
 
 ###
+# It's hard to guess whether a setting in '/etc/lvm/lvm.conf' is already set to
+# a non-default value, so if you edited this file otherwise and want to keep
+# your config, set this to 'false'.
+# Used for:
+# * Configure LVM to automatically extend snapshot sizes if they reach 80 percent
+#   capacity. Can only extend snapshots as long as there are LVM extents available.
+###
+restic_client_lvm_allow_edit_lvmconf: true
+
+###
 # Directories to include into a backup.
 #   * Defaults can be ignored by setting the "use" variable to 'false'
 #   * Both lists ('default' and 'custom') are merged into one list
