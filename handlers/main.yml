@@ -10,6 +10,14 @@
     - "/tmp/restic_{{ _restic_client_version }}_linux_amd64.bz2"
     - "/tmp/restic_{{ _restic_client_version }}_linux_amd64"
 
+###
+# Reloading this service is not supported on all distros
+###
+- name: Restart LVM event listener
+  ansible.builtin.systemd:
+    name: dm-event.service
+    state: restarted
+
 - name: Reload systemd
   ansible.builtin.systemd:
     daemon-reload: true

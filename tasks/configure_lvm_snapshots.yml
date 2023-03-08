@@ -1,6 +1,30 @@
 ---
 
 ###
+# This task will only change LVM setting if it is set to the default value '100'
+# explicitly (Debian-based distros) or is commented-out (RedHat-based distros).
+# The LVM setting 'snapshot_autoextend_percent' is also important for this
+# feature, but won't be changed for now, a default 20 percent increase seems
+# reasonable.
+# Regexp:
+#   ^([\s]*)  From beginning of line, match 0-n space characters, and store them
+#             in a backref group, referenced via \1 in 'line'.
+#   (?:# )?   Match '# ' if present, but don't store it in a backref group
+###
+- name: Configure LVM to automatically extend near-full snapshots with available extents
+  ansible.builtin.lineinfile:
+    path: /etc/lvm/lvm.conf
+    regexp: '^([\s]*)(?:# )?snapshot_autoextend_threshold = 100$'
+    backrefs: yes
+    line: |-
+      \1### snapshot_autoextend_threshold = 100
+      \1### Ansible managed - fifty2technology.restic_client
+      \1snapshot_autoextend_threshold = 80
+    validate: /usr/sbin/lvmconfig --validate --file %s
+  notify: Restart LVM event listener
+  when: restic_client_lvm_allow_edit_lvmconf
+
+###
 # This prevents restic from reading files inside the LVM snapshot directory.
 # Due to deduplication it does not harm including those files, but the filecount
 # doubles. Also, good for general clearness.
