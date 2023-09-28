@@ -1,3 +1,5 @@
+[[_TOC_]]
+
 # Description
 Installs `restic` and configures it to do a full system backup every night. Each node starts its backup between 00:00 and 03:00 o'clock, always at the same point in time (e.g. always starting at 01:23 o'clock).[^1] Backups are pushed to a [restic REST server](https://github.com/restic/rest-server), other repository backends are not (yet) supported.
 
@@ -10,6 +12,7 @@ If LVM is detected on a node, automatic creation of snapshots is included as par
 * At least 8 (eight) percent of the origins LV size must be free space in the LVM volume group for snapshots. A good estimate is to not let logical volumes (LVs) take more than 90 percent of the available space in a volume group (VG), or 10% free extents and you should be good to go. More is better, see point below.
 * To prevent failing backups due to full and invalidated snapshots, LVM gets configured to automatically extend snapshot sizes once they reach 80 percent capacity (can be disabled).
 * Only logical volumes are considered that are mounted at the time of the playbook run. To add or remove LVs, mount/umount them and rerun the playbook.
+* Systems with existing logical volumes with names starting with `backup` are not tested and might cause name collision or even damage. This role creates LV snapshots named `backup*` per mount point, e.g. `backup_` for `/`, `backup_home` for `/home`, etc.
 * Tested with ext4 and xfs filesystems on LVM.
 
 ## Remote pull-style backups
@@ -89,6 +92,26 @@ For showing the output of all involved services, you can use `journalctl -ft res
 Currently, in our infrastructure, there is only one (productive) backup server and restic itself doesn't know how to handle multiple backup targets.
 
 Thus, the `backupservers` inventory group has only one member and this role (`restic_client`)  queries for the first member of that group via: `"{{ groups['backupservers'] | first }}"` to get the hostname of our backup server (in `roles/restic_client/defaults/main.yml` this is hidden behind `restic_client_backup_server_hostname: "{{ backup_server }}"`).
+
+## Failing backups
+### LVM snapshot at 100%
+Backups can fail due to filled-up LVM snapshots and exhausted LVM volume group extends. In this case, it must be recovered manually, otherwise subsequent backups will fail (because snapshots already exist):
+* Make sure all snapshots are unmounted from the snapshot directory (default `/home/restic/snapshots`)
+* Run `lvremove /dev/<vg-name>/backup_*` to remove all snapshots created by systemd service `restic-snapshot-create.service`.
+  * In rare cases, LVM will report that an LV snapshot is still in use although unmounted and not showing anything in `lsof` output. Also, LVM snapshots can't get deactivated without deactivating their parent, so if temporarily unmounting the parent LV is not an option for you, the machine must be rebooted.
+* _Optional_: Run `systemctl reset-failed` to clear `failed` state from systemd services `restic-snapshot-create.service` and `restic-snapshot-delete.service`.
+* Run `systemctl start restic-backup --no-block` or wait for the `restic-backup.timer` script to run again.
+
+### Permission denied
+On some directories - e.g. `gvfs` mounts on Ubuntu - `restic` cannot read the metainformation and file contents:
+```
+restic[673470]: scan: lstat /home/user/.cache/gvfs: permission denied
+restic[673470]: error: lstat /home/user/.cache/gvfs: permission denied
+```
+This will mark the systemd service as `failed`, although the backup will finish correctly. Add affected directories to `restic_client_custom_excludes` list.
+
+### File disappeared
+Occationally, files will disappear after restic scanned them but did not backup them yet. Backups will finish successfully, but the `restic-backup.service` will be marked as `failed`. To remedy, either **a**) rerun the `restic-backup.service`, **b**) reset the service state by running `systemctl reset-failed restic-backup.service`, or **c**) ignore and wait for next backup.
 
 ## Backup consistency
 If LVM is not used on a node, there is no mechanism in place to ensure consistency for backups, so a backup might include files from two distinct application states.
