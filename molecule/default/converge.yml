@@ -1,9 +1,10 @@
 ---
+
 - name: Converge
   hosts: all
 
   vars:
-    backup_server: backup.example.com
+    restic_client_encryption_password: "verybadpasswordexampleonlyuseformoleculerun"
     ### We can't test LVM behaviour inside containers, it would use the hosts LVM.
     restic_client_use_lvm: false
 
