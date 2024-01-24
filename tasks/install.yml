@@ -13,11 +13,6 @@
   become: true
   when: ansible_os_family == 'RedHat'
 
-- name: Install required packages
-  ansible.builtin.package:
-    name: fuse
-    state: present
-
 ###
 # Downloading is always done. Since it takes roughly the same time to download
 # and then *not* upload it to nodes with up-to-date installations, checks for

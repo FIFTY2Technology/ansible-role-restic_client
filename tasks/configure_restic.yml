@@ -22,21 +22,23 @@
 ###
 # 'no_log' for all tasks that include a secret
 ###
-- name: Template restic remote repository path (to REST server)
+- name: Template restic repository file
   ansible.builtin.template:
-    src: templates/repository.j2
+    src: "{{ restic_client_repository }}"
     dest: "{{ restic_client_config_dir }}/repository"
+    backup: true
     owner: "{{ restic_client_user }}"
     group: "{{ restic_client_group }}"
-    mode: '0400'
+    mode: '0640'
   no_log: "{{ restic_client_no_log }}"
   when:
     - not restic_client_is_remote
 
 - name: Rollout encryption password
-  ansible.builtin.template:
-    src: templates/password.j2
+  ansible.builtin.copy:
+    content: "{{ restic_client_encryption_password }}"
     dest: "{{ restic_client_config_dir }}/password"
+    backup: true
     owner: "{{ restic_client_user }}"
     group: "{{ restic_client_group }}"
     mode: '0400'

@@ -1,5 +1,13 @@
 ---
 
+- name: Check that encryption password is defined
+  ansible.builtin.assert:
+    that:
+      - restic_client_encryption_password | length > 0
+    fail_msg: >-
+      Error: 'restic_client_encryption_password' is not provided.
+      Please configure variable with a strong and unique encryption password per host.
+
 ###
 # Create group first. In case 'restic_client_user' and 'restic_client_group' are
 # not the same name, group has to exist and will not get created in task below.
