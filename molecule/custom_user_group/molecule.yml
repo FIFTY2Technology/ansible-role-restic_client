@@ -4,16 +4,16 @@ dependency:
 driver:
   name: podman
 platforms:
-  - name: restic_client.debian10-custom_user_group
-    image: geerlingguy/docker-debian11-ansible:latest  # debian 10 - buster
+  - name: restic_client.debian11-custom_user_group
+    image: geerlingguy/docker-debian11-ansible:latest  # debian 11 - bullseye
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.debian11-custom_user_group
-    image: geerlingguy/docker-debian11-ansible:latest  # debian 11 - bullseye
+  - name: restic_client.debian12-custom_user_group
+    image: geerlingguy/docker-debian12-ansible:latest  # debian 12 - bookworm
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: ${MOLECULE_DOCKER_COMMAND:-""}

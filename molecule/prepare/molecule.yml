@@ -4,22 +4,16 @@ dependency:
 driver:
   name: podman
 platforms:
-  - name: restic_client.debian10-prepare
-    image: geerlingguy/docker-debian11-ansible:latest  # debian 10 - buster
-    tmpfs:
-      - /run
-      - /tmp
+  - name: restic_client.debian11-prepare
+    image: geerlingguy/docker-debian11-ansible:latest  # debian 11 - bullseye
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.debian11-prepare
-    image: geerlingguy/docker-debian11-ansible:latest  # debian 11 - bullseye
-    tmpfs:
-      - /run
-      - /tmp
+  - name: restic_client.debian12-prepare
+    image: geerlingguy/docker-debian12-ansible:latest  # debian 12 - bookworm
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -28,9 +22,6 @@ platforms:
 
   - name: restic_client.ubuntu1804-prepare
     image: geerlingguy/docker-ubuntu1804-ansible:latest  # ubuntu 18.04 - bionic
-    tmpfs:
-      - /run
-      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -39,9 +30,6 @@ platforms:
 
   - name: restic_client.ubuntu2004-prepare
     image: geerlingguy/docker-ubuntu2004-ansible:latest  # ubuntu 20.04 - focal
-    tmpfs:
-      - /run
-      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -50,9 +38,6 @@ platforms:
 
   - name: restic_client.ubuntu2204-prepare
     image: geerlingguy/docker-ubuntu2204-ansible:latest  # ubuntu 22.04 - jammy
-    tmpfs:
-      - /run
-      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -61,9 +46,6 @@ platforms:
 
   - name: restic_client.rockylinux8-prepare
     image: geerlingguy/docker-rockylinux8-ansible:latest  # Rocky Linux 8
-    tmpfs:
-      - /run
-      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -72,9 +54,6 @@ platforms:
 
   - name: restic_client.rockylinux9-prepare
     image: geerlingguy/docker-rockylinux9-ansible:latest  # Rocky Linux 9
-    tmpfs:
-      - /run
-      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
