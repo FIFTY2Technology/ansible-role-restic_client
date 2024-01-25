@@ -31,6 +31,21 @@
     shell: /bin/bash
     state: present
 
+###
+# Guess if repository is a local directory with 'is abs' (is absolute path) and
+# create it. Remote repositories ('sftp:', 'rest:', 's3:', 'b2:' etc.) do not
+# match as absolute path.
+###
+- name: Create repository directory
+  ansible.builtin.file:
+    path: "{{ lookup('template', restic_client_repository) | trim }}"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0750'
+    state: directory
+  when:
+    - lookup('template', restic_client_repository) | trim is abs
+
 - name: Create directory for restic config files and cache
   ansible.builtin.file:
     path: "{{ item }}"
