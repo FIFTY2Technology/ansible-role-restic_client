@@ -1,5 +1,13 @@
 ---
 
+- name: Check that encryption password is defined
+  ansible.builtin.assert:
+    that:
+      - restic_client_encryption_password | length > 0
+    fail_msg: >-
+      Error: 'restic_client_encryption_password' is not provided.
+      Please configure variable with a strong and unique encryption password per host.
+
 ###
 # Create group first. In case 'restic_client_user' and 'restic_client_group' are
 # not the same name, group has to exist and will not get created in task below.
@@ -22,6 +30,21 @@
     home: "{{ restic_client_home }}"
     shell: /bin/bash
     state: present
+
+###
+# Guess if repository is a local directory with 'is abs' (is absolute path) and
+# create it. Remote repositories ('sftp:', 'rest:', 's3:', 'b2:' etc.) do not
+# match as absolute path.
+###
+- name: Create repository directory
+  ansible.builtin.file:
+    path: "{{ lookup('template', restic_client_repository) | trim }}"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0750'
+    state: directory
+  when:
+    - lookup('template', restic_client_repository) | trim is abs
 
 - name: Create directory for restic config files and cache
   ansible.builtin.file:

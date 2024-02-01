@@ -1,0 +1,57 @@
+{# Put together our templated string in the bottom with several different variables.
+   * First, to keep an overview and not have one variable of 20 kilometers lengt.
+     REST is: 'rest:https://<username>:<rest-pass>@<backup-server>:<port>/<username>
+     Where <username> is the hostname in the case of our servers.
+   * Second, to keep the approx. variables we used, before we switched to the
+     configurable repository variable 'restic_client_repository' in restic_client.
+#}
+
+{#- The repositories on our rest-server are configured per-machine and a single
+    user is responsible for a complete system-backup. The backup destination
+    can be accessed as follows:
+    rest:             specifies the connection protocol for the restic client to
+                      use for the remote storage.
+    https://          authentication and data transfer happens over HTTPS.
+    <client-username> The client's hostname is also its username for authentication
+                      against REST here. Dots are replaced by underscores.
+    :                 Field separator between username and password.
+    <password>        The clients password used for authentication agains the REST
+                      server. Should only contain alphanumerical characters.
+    @                 Field separator between username:password and host:port.
+    <server-hostname> Target servers FQDN the client sends backups to. The FQDN is
+                      derived from variables, see below.
+    :                 Field separator between host and port.
+    <port>            TCP port where the remote REST server is listening on. This is
+                      the same port as specified as 'restic_server_listen_port' in
+                      'restic_server' role. We cannot cross-reference it from this
+                      role directly here, since this would create a dependency.
+    /<path>           Path to repository on the REST server. Must be the username
+                      if REST server runs with `--private-repos`.
+                      (our default: the client's username/hostname).
+#}
+
+{#- Variables starting with 'restic_fifty2_' are not part of any role, but defined
+    in our 'group_vars/all.yml' file and are meant to give guidance on how to
+    implement a host-specific restic REST 'repository' file. As an example, we use
+    the machine's hostname to request specific entries in our passwordstore for
+    REST password (and also the encryption password) like this:
+    lookup('passwordstore', 'IT/backup/auth/' + inventory_hostname + ' create=true nosymbols=true')
+    Also see '../molecule/custom_repository/converge.yml' for an applied example
+    on how the variables below come together.
+#}
+
+{#- Dots are not allowed in .htpasswd usernames, so we replace them with '_'.
+    Also see 'tasks/add_rest_user.yml' in 'restic_server' role and
+    https://httpd.apache.org/docs/2.4/programs/htpasswd.html#restrictions. #}
+{% set _rest_username            = restic_fifty2_rest_username | regex_replace('\\.', '_') %}
+
+{#- Note that REST passwords cannot contain special characters in order to not
+    get confused with field delimiters in the 'repository' string. #}
+{% set _rest_password            = restic_fifty2_rest_password %}
+
+{#- Set hostname and TCP port of REST server. This information is used in other
+    places too, therefore it's just a reference to variables from 'group_vars/all.yml'. #}
+{% set _backup_server            = restic_fifty2_backup_server %}
+{% set _backup_server_port       = restic_fifty2_backup_server_port -%}
+
+rest:https://{{ _rest_username }}:{{ _rest_password }}@{{ _backup_server }}:{{ _backup_server_port }}/{{ _rest_username }}

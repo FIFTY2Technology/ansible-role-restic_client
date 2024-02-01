@@ -1,14 +1,21 @@
 ---
 
 ###
-# Read REST authentication password and backup encryption password from the
-# passwordstore. REST passwords cannot contain special characters in order to
-# not get confused with field delimiters in the 'repository' file (also see the
-# 'RESTIC_REPOSITORY_FILE' env variable in 'templates/backup.conf.j2').
-# If they do not exist yet, they will get created.
+# Repository definition for restic backups. Must be a path to a Jinja2 template file.
+# Default template sets '/srv/backup'. See template content for more info, and
+# 'templates/repository.example*.j2' for more examples.
+# Content will be written to a file and used via 'restic --repository-file'.
 ###
-restic_client_rest_password: "{{ lookup('passwordstore', 'IT/backup/auth/' + inventory_hostname + ' create=true nosymbols=true') }}"
-restic_client_encryption_password: "{{ lookup('passwordstore', 'IT/backup/encryption/' + inventory_hostname + ' create=true length=52') }}"
+restic_client_repository: "templates/repository.j2"
+
+###
+# Password for encrypting the restic repository. Must be set explicitly. Should
+# be unique for every host. From 'restic init' output:
+# > Please note that knowledge of your password is required to access
+# > the repository. Losing your password means that your data is
+# > irrecoverably lost.
+###
+restic_client_encryption_password: ""
 
 ###
 # Username and group to use for running restic command
@@ -30,16 +37,6 @@ restic_client_config_dir: "{{ restic_client_home }}/.config/restic"
 # Folder the restic binary will be put in
 ###
 restic_client_bin_dir: "/usr/local/bin"
-
-###
-# Specify backup REST server hostname to use as remote target.
-###
-restic_client_backup_server_hostname: "{{ backup_server }}"
-
-###
-# Specify backup REST server port to use as remote target.
-###
-restic_client_backup_server_port: 3000
 
 ###
 # Use LVM if available on the client. Can only be disabled explicitly when the
