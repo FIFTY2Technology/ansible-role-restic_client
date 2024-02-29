@@ -10,6 +10,9 @@ ConditionPathIsMountPoint={{ restic_client_lvm_snapshot_dir }}
 RootDirectory={{ restic_client_lvm_snapshot_dir }}
 PrivateTmp=true
 MountAPIVFS=true
+###
+# '~/.cache/restic' gets bind-mounted, so that LVM doesn't cache into its own snapshot.
+###
 BindPaths={{ restic_client_home }}/.cache
 ReadOnlyPaths=/
 {# Create 'BindReadOnlyPaths' commands for 'root' logical volume first, otherwise

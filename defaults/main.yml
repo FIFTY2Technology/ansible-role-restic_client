@@ -31,7 +31,7 @@ restic_client_home: "/home/{{ restic_client_user }}"
 ###
 # Folder where the config and all restic-specific files will live in
 ###
-restic_client_config_dir: "{{ restic_client_home }}/.config/restic"
+restic_client_config_dir: "/etc/restic"
 
 ###
 # Folder the restic binary will be put in
@@ -51,7 +51,7 @@ restic_client_use_lvm: true
 # Directory to temporarily mount snapshots into during backup process.
 # Only used if LVM is detected on the target system.
 ###
-restic_client_lvm_snapshot_dir: "{{ restic_client_home }}/snapshots"
+restic_client_lvm_snapshot_dir: "/var/local/restic/snapshots"
 
 ###
 # It's hard to guess whether a setting in '/etc/lvm/lvm.conf' is already set to

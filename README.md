@@ -33,10 +33,10 @@ All variables which can be overridden are stored in defaults/main.yml file as we
 | `restic_client_user` | "restic" | Username to use for running restic command |
 | `restic_client_group` | "restic" | Groupname to use for running restic command |
 | `restic_client_home` | "/home/restic" | Home directory of `restic_client_user` |
-| `restic_client_config_dir` | `"{{ restic_client_home }}/.config/restic"` | Folder where the config and all restic-specific files will live in |
+| `restic_client_config_dir` | `"/etc/restic"` | Folder where the config and all restic-specific files will live in |
 | `restic_client_bin_dir` | `/usr/local/bin"` | Folder the restic binary will be put in |
 | `restic_client_use_lvm` | true | Use LVM if available on the client. Can only be disabled explicitly when the use of LVM snapshots is not wished (and in case LVM is present), but cannot enable LVM functionality when no LVM is present on the client. Useful e.g. if a pre-existing VG does not have any free physical extends (PE) available for snapshots. |
-| `restic_client_lvm_snapshot_dir` | `"{{ restic_client_home }}/snapshots"` | Directory to mount snapshots into during backup process. Only used if LVM is detected on the target system |
+| `restic_client_lvm_snapshot_dir` | `"/var/local/restic/snapshots"` | Directory to mount snapshots into during backup process. Only used if LVM is detected on the target system |
 | `restic_client_lvm_allow_edit_lvmconf` | true |  It's hard to guess whether a setting in `/etc/lvm/lvm.conf` is already set to a non-default value, so if you edited this file otherwise and want to keep your config, set this to `false`.<br/>Used for:<br/>* Configure LVM to automatically extend snapshot sizes if they reach 80 percent capacity. Can only extend snapshots as long as there are LVM extents available. |
 | `restic_client_use_default_includes` | true | Set to false to ignore (not use) directories listed in `restic_client_default_includes`. You should define your own directories via `restic_client_custom_includes` then. |
 | `restic_client_default_includes` | `/` | List of directories to include into backups by default, as long as not ignored via `restic_client_use_default_includes: false`. |
@@ -72,7 +72,7 @@ For showing the output of all involved services, you can use `journalctl -ft res
 ## Failing backups
 ### LVM snapshot at 100%
 Backups can fail due to filled-up LVM snapshots and exhausted LVM volume group extends. In this case, it must be recovered manually, otherwise subsequent backups will fail (because snapshots already exist):
-* Make sure all snapshots are unmounted from the snapshot directory (default `/home/restic/snapshots`)
+* Make sure all snapshots are unmounted from the snapshot directory (default `/var/local/restic/snapshots`)
 * Run `lvremove /dev/<vg-name>/backup_*` to remove all snapshots created by systemd service `restic-snapshot-create.service`.
   * In rare cases, LVM will report that an LV snapshot is still in use although unmounted and not showing anything in `lsof` output. Also, LVM snapshots can't get deactivated without deactivating their parent, so if temporarily unmounting the parent LV is not an option for you, the machine must be rebooted.
 * _Optional_: Run `systemctl reset-failed` to clear `failed` state from systemd services `restic-snapshot-create.service` and `restic-snapshot-delete.service`.

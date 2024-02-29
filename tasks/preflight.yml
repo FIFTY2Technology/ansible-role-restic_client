@@ -46,16 +46,13 @@
   when:
     - lookup('template', restic_client_repository) | trim is abs
 
-- name: Create directory for restic config files and cache
+- name: Create directory for restic config files
   ansible.builtin.file:
-    path: "{{ item }}"
-    owner: "{{ restic_client_user }}"
+    path: "{{ restic_client_config_dir }}"
+    owner: root
     group: "{{ restic_client_group }}"
     mode: '0750'
     state: directory
-  loop:
-    - "{{ restic_client_config_dir }}"
-    - "{{ restic_client_home }}/.cache"
 
 ###
 # Add systemd service drop-in directory. Files in there with '.conf' suffix will
