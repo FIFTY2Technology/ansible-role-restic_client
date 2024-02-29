@@ -6,11 +6,11 @@ Description=Restic backup
 Documentation=https://restic.readthedocs.io
 
 [Service]
-Type=oneshot
+Type=exec
 User={{ restic_client_user }}
 Group={{ restic_client_group }}
 AmbientCapabilities=cap_dac_read_search
-ExecStart=-{{ restic_client_bin_dir }}/restic init
+ExecStartPre=-{{ restic_client_bin_dir }}/restic init
 ExecStart={{ restic_client_bin_dir }}/restic backup \
 		  --verbose \
 		  --tag systemd.timer \
