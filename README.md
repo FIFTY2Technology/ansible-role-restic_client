@@ -76,7 +76,7 @@ Backups can fail due to filled-up LVM snapshots and exhausted LVM volume group e
 * Run `lvremove /dev/<vg-name>/backup_*` to remove all snapshots created by systemd service `restic-snapshot-create.service`.
   * In rare cases, LVM will report that an LV snapshot is still in use although unmounted and not showing anything in `lsof` output. Also, LVM snapshots can't get deactivated without deactivating their parent, so if temporarily unmounting the parent LV is not an option for you, the machine must be rebooted.
 * _Optional_: Run `systemctl reset-failed` to clear `failed` state from systemd services `restic-snapshot-create.service` and `restic-snapshot-delete.service`.
-* Run `systemctl start restic-backup --no-block` or wait for the `restic-backup.timer` script to run again.
+* Run `systemctl start restic-backup` or wait for the `restic-backup.timer` script to run again.
 
 ### Permission denied
 On some directories - e.g. `gvfs` mounts on Ubuntu - `restic` cannot read the metainformation and file contents:
