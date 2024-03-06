@@ -6,7 +6,7 @@ Description=Restic backup service (data pruning)
 Documentation=https://restic.readthedocs.io
 
 [Service]
-Type=oneshot
+Type=exec
 User={{ restic_client_user }}
 Group={{ restic_client_group }}
 ExecStart={{ restic_client_bin_dir }}/restic forget \
