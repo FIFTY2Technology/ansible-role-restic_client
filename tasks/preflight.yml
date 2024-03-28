@@ -50,8 +50,8 @@
   ansible.builtin.file:
     path: "{{ restic_client_config_dir }}"
     owner: root
-    group: "{{ restic_client_group }}"
-    mode: '0750'
+    group: root
+    mode: '0755'
     state: directory
 
 ###
@@ -68,7 +68,7 @@
     state: directory
     owner: root
     group: root
-    mode: '0750'
+    mode: '0755'
 
 ###
 # This task makes it easier to run 'restic' commands as the backup user (restic).
