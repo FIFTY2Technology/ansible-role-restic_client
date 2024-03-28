@@ -6,7 +6,13 @@ Description=Restic backup
 Documentation=https://restic.readthedocs.io
 
 [Service]
+{% if restic_client_is_remote %}
+{# Service should only return after main command completed, to keep the SSH tunnel open during backup #}
+Type=oneshot
+{% else %}
+{# Prefer rather instantaneous prompt return when run interactively #}
 Type=exec
+{% endif %}
 User={{ restic_client_user }}
 Group={{ restic_client_group }}
 AmbientCapabilities=cap_dac_read_search
