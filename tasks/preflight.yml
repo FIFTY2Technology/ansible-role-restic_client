@@ -54,6 +54,14 @@
     mode: '0755'
     state: directory
 
+- name: Create directory for restic cache files
+  ansible.builtin.file:
+    path: "{{ restic_client_home }}/.cache"
+    owner: "{{ restic_client_user }}"
+    group: "{{ restic_client_group }}"
+    mode: '0755'
+    state: directory
+
 ###
 # Add systemd service drop-in directory. Files in there with '.conf' suffix will
 # be parsed as part of the service file. Allows easy expansion and altering of
