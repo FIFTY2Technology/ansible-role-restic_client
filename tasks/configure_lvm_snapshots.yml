@@ -15,7 +15,7 @@
   ansible.builtin.lineinfile:
     path: /etc/lvm/lvm.conf
     regexp: '^([\s]*)(?:# )?snapshot_autoextend_threshold = 100$'
-    backrefs: yes
+    backrefs: true
     line: |-
       \1### snapshot_autoextend_threshold = 100
       \1### Ansible managed - fifty2technology.restic_client
