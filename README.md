@@ -16,7 +16,7 @@ If LVM is detected on a node, automatic creation of snapshots is included as par
 * Tested with ext4 and xfs filesystems on LVM.
 
 ## Remote pull-style backups
-Backups can be triggered by the backup server, if a client cannot reach the backup server directly. (e.g. due to firewall rules, NAT, etc.) For this, the client must be deployed with `restic_client_is_remote: true` option. This functionality is only tested on a server deployed with the `fifty2technology.restic_server` role, and role `fifty2technology.restic_remote` must be deployed to the client.
+Optionally, backups can be triggered by the backup server, if a client cannot reach the backup server directly. (e.g. due to firewall rules, NAT, etc.) For this, the client must be deployed with `restic_client_is_remote: true` option. This functionality requires a REST-backend backup server deployed with the `fifty2technology.restic_server` role, and role `fifty2technology.restic_remote` must be deployed to the client.
 
 The backup client will be configured with non-active systemd timers for `restic-backup`/`restic-prune` operations in this case. The backup server will be configured to periodically connect to the client via SSH and open a [Remote Port Forwarding](https://www.ssh.com/academy/ssh/tunneling/example#remote-forwarding) to the restic REST backup server. The client is then able to reach the backup server on `127.0.0.1` through the SSH tunnel.
 
