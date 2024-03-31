@@ -31,8 +31,6 @@
     group: "{{ restic_client_group }}"
     mode: '0640'
   no_log: "{{ restic_client_no_log }}"
-  when:
-    - not restic_client_is_remote
 
 - name: Rollout encryption password
   ansible.builtin.copy:

@@ -8,10 +8,6 @@
     ### We can't test LVM behaviour inside containers, it would use the hosts LVM.
     restic_client_use_lvm: false
     restic_client_repository: "templates/repository.exampleREST.j2"
-    ### Vars for the sake of completeness and successful molecule run, after we
-    ### defined our custom repository file above.
-    restic_fifty2_backup_server: backup.example.com
-    restic_fifty2_backup_server_port: 3000
     restic_fifty2_rest_username: "{{ inventory_hostname }}"
     restic_fifty2_rest_password: "{{ lookup('passwordstore', 'IT/backup/auth/' + inventory_hostname + ' create=true nosymbols=true') }}"
     restic_client_no_log: false

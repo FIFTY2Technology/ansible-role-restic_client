@@ -36,6 +36,7 @@
     the machine's hostname to request specific entries in our passwordstore for
     REST password (and also the encryption password) like this:
     lookup('passwordstore', 'IT/backup/auth/' + inventory_hostname + ' create=true nosymbols=true')
+
     Also see '../molecule/custom_repository/converge.yml' for an applied example
     on how the variables below come together.
 #}
@@ -49,9 +50,11 @@
     get confused with field delimiters in the 'repository' string. #}
 {% set _rest_password            = restic_fifty2_rest_password %}
 
-{#- Set hostname and TCP port of REST server. This information is used in other
-    places too, therefore it's just a reference to variables from 'group_vars/all.yml'. #}
-{% set _backup_server            = restic_fifty2_backup_server %}
-{% set _backup_server_port       = restic_fifty2_backup_server_port -%}
+{#- Set hostname and TCP port of REST server. Lots of defaults here for demonstration
+    in the 'custom_repository' molecule scenario, usually it should be defined
+    in host_vars.
+#}
+{% set _backup_server            = groups['backupservers'][0] | default('backupserver.example.com') %}
+{% set _backup_server_port       = restic_remote_client_port | default(restic_server_listen_port) | default(3000) %}
 
 rest:https://{{ _rest_username }}:{{ _rest_password }}@{{ _backup_server }}:{{ _backup_server_port }}/{{ _rest_username }}
