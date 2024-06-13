@@ -12,9 +12,9 @@ Before=restic-backup.service
 
 [Service]
 Type=oneshot
-User={{ restic_client_user }}
-Group={{ restic_client_group }}
-WorkingDirectory=~
+User=root
+Group=root
+WorkingDirectory={{ restic_client_home }}
 {% for command in restic_client_custom_prepare_commands %}
 ExecStart={{ command }}
 {% endfor %}
