@@ -72,11 +72,18 @@ For showing the output of all involved services, you can use `journalctl -ft res
 ## Failing backups
 ### LVM snapshot at 100%
 Backups can fail due to filled-up LVM snapshots and exhausted LVM volume group extends. In this case, it must be recovered manually, otherwise subsequent backups will fail (because snapshots already exist):
+* Check if/which snapshots are full with command `lvs` or by looking through the latest output of `journalctl -ft kernel -t lvm`.
 * Make sure all snapshots are unmounted from the snapshot directory (default `/var/local/restic/snapshots`)
 * Run `lvremove /dev/<vg-name>/backup_*` to remove all snapshots created by systemd service `restic-snapshot-create.service`.
   * In rare cases, LVM will report that an LV snapshot is still in use although unmounted and not showing anything in `lsof` output. Also, LVM snapshots can't get deactivated without deactivating their parent, so if temporarily unmounting the parent LV is not an option for you, the machine must be rebooted.
 * _Optional_: Run `systemctl reset-failed` to clear `failed` state from systemd services `restic-snapshot-create.service` and `restic-snapshot-delete.service`.
 * Run `systemctl start --no-block restic-backup` or wait for the `restic-backup.timer` script to run again.
+
+### LVM snapshot creation fails consistently
+Services might fail for the following reasons, and no backup will be created:
+* `restic-snapshot-create.service`: Insufficient suitable allocatable extents found for logical volume backup_.
+* `restic-snapshot-delete.service`: umount: /var/local/restic/snapshots/: not mounted.
+In this case, make sure the volume group has free extends available for storing snapshots, recommended size is 8-10% of the VG size. Command `vgs` must show >0 in column `VFree`.
 
 ### Permission denied
 On some directories - e.g. `gvfs` mounts on Ubuntu - `restic` cannot read the metainformation and file contents:
