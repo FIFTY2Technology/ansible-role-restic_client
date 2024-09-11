@@ -20,6 +20,6 @@ ExecStart={{ restic_client_bin_dir }}/restic backup \
 {# Do not start a backup run (ExecStart) when doing a systemd service reload.
    Instead, run this arbitrary command which also proves the repo is working as expected. #}
 ExecReload={{ restic_client_bin_dir }}/restic version
-SuccessExitStatus=3  {#- https://restic.readthedocs.io/en/stable/075_scripting.html#exit-codes #}
+SuccessExitStatus=3
 EnvironmentFile={{ restic_client_config_dir }}/backup.conf
 SyslogIdentifier=restic
