@@ -1,4 +1,4 @@
-{# barefaced stolen from https://fedoramagazine.org/automate-backups-with-restic-and-systemd/ #}
+{# initially stolen from https://fedoramagazine.org/automate-backups-with-restic-and-systemd/ #}
 # {{ ansible_managed }}
 
 [Unit]
@@ -20,6 +20,8 @@ ExecStart={{ restic_client_bin_dir }}/restic backup \
 {# Do not start a backup run (ExecStart) when doing a systemd service reload.
    Instead, run this arbitrary command which also proves the repo is working as expected. #}
 ExecReload={{ restic_client_bin_dir }}/restic version
+{# Exit 3: backup command could not read some source data
+   https://restic.readthedocs.io/en/stable/075_scripting.html#exit-codes #}
 SuccessExitStatus=3
 EnvironmentFile={{ restic_client_config_dir }}/backup.conf
 SyslogIdentifier=restic
