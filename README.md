@@ -91,10 +91,10 @@ On some directories - e.g. `gvfs` mounts on Ubuntu - `restic` cannot read the me
 restic[673470]: scan: lstat /home/user/.cache/gvfs: permission denied
 restic[673470]: error: lstat /home/user/.cache/gvfs: permission denied
 ```
-This will mark the systemd service as `failed`, although the backup will finish correctly. Add affected directories to `restic_client_custom_excludes` list.
+The systemd service will exit successfully and ignore those errors (see [Scripting - restic documentation](https://restic.readthedocs.io/en/stable/075_scripting.html)). Add affected directories to `restic_client_custom_excludes` list to skip them.
 
 ### File disappeared
-Occationally, files will disappear after restic scanned them but did not backup them yet. Backups will finish successfully, but the `restic-backup.service` will be marked as `failed`. To remedy, either **a**) rerun the `restic-backup.service`, **b**) reset the service state by running `systemctl reset-failed restic-backup.service`, or **c**) ignore and wait for next backup.
+Occationally, files will disappear after restic scanned them but did not backup them yet. Backups will finish successfully, and the `restic-backup.service` will print them out.
 
 ## Backup consistency
 If LVM is not used on a node, there is no mechanism in place to ensure consistency for backups, so a backup might include files from two distinct application states.
