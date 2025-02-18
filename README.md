@@ -23,6 +23,7 @@ The backup client will be configured with non-active systemd timers for `restic-
 # Requirements
 * Requires `bunzip2` to be installed on the Ansible runner.
 * Package `fuse` must be installed to use the `restic mount` command.
+* Systemd - tested on: Debian, Ubuntu, Fedora, Rocky Linux, Raspberry Pi 4B.
 
 # Role Variables
 All variables which can be overridden are stored in defaults/main.yml file as well as in table below.

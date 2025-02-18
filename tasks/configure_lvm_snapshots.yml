@@ -94,7 +94,7 @@
 # This list is used in the 'templates/restic-snapshot-create.service.j2'
 # systemd service template file, and used in reverse-sorted order in the
 # 'templates/restic-snapshot-delete.service.j2' systemd service template file.
-# Exclution of LVs names including 'swap' or 'tmp' is done inside the templates.
+# Exclusion of LVs names including 'swap' or 'tmp' is done inside the templates.
 # Example '_lvm_mounted_devices':
 #   [
 #      "/",
