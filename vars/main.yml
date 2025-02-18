@@ -1,0 +1,12 @@
+---
+
+###
+# Map CPU architecture names reported by Ansible to CPU architecture names of
+# restic release assets on GitHub, e.g.:
+#   Ansible facts: "ansible_architecture": "x86_64"
+#                                           ^^^^^^
+#   restic project: " restic_0.17.3_linux_amd64.bz2"
+#                                         ^^^^^
+###
+_restic_client_arch: "{{ {'x86_64':  'amd64',
+                          'aarch64': 'arm64',}.get(ansible_facts['architecture'], ansible_facts['architecture']) }}"
