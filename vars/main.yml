@@ -8,5 +8,7 @@
 #   restic project: " restic_0.17.3_linux_amd64.bz2"
 #                                         ^^^^^
 ###
-_restic_client_arch: "{{ {'x86_64':  'amd64',
-                          'aarch64': 'arm64',}.get(ansible_facts['architecture'], ansible_facts['architecture']) }}"
+_restic_client_arch: "{{ {
+                          'x86_64': 'amd64',
+                          'aarch64': 'arm64',
+                      }.get(ansible_facts['architecture'], ansible_facts['architecture']) }}"
