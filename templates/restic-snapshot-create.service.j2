@@ -20,6 +20,7 @@ Group=root
    the creation of the list of to-be-snapshotted-devices, '_lvm_mounted_devices'.
    To increase the likelyhood of a "perfect" full-system filesystem snapshot,
    all 'lvcreate' commands are grouped and only mounted after successful creation.
+   '_lvm_mounted_devices':
    * 'item[0]' is the origins mountpoint in the directory tree
    * 'item[1]' is the path to the LV device underneath '/dev/mapper' and is used
       to refer to the origin LV.

@@ -8,3 +8,4 @@ exclude_paths:
 skip_list:
   - experimental
   - key-order[task]
+  - jinja[spacing]

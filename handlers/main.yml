@@ -2,13 +2,10 @@
 
 - name: Clean up temporary downloads
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "/tmp/restic_{{ _restic_client_version }}_linux_*"
     state: absent
   delegate_to: localhost
   become: false
-  loop:
-    - "/tmp/restic_{{ _restic_client_version }}_linux_amd64.bz2"
-    - "/tmp/restic_{{ _restic_client_version }}_linux_amd64"
 
 ###
 # Reloading this service is not supported on all distros
