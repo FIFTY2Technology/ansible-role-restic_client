@@ -10,6 +10,9 @@ ConditionPathIsMountPoint={{ restic_client_lvm_snapshot_dir }}
 RootDirectory={{ restic_client_lvm_snapshot_dir }}
 PrivateTmp=true
 MountAPIVFS=true
+{% if ansible_systemd.version >= 257 %}
+BindLogSockets=false
+{% endif %}
 ###
 # '~/.cache/restic' gets bind-mounted, so that LVM doesn't cache into its own snapshot.
 ###
@@ -42,4 +45,3 @@ BindReadOnlyPaths=/:/:rbind
 BindReadOnlyPaths={{ restic_client_lvm_snapshot_dir }}{{ item[0] }}:{{ item[0] }}
 {% endif %}
 {% endfor %}
-

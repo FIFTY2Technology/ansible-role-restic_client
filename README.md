@@ -55,7 +55,7 @@ None.
 # Example Playbook
 ```
 - hosts: backupclients
-  gather_facts: false
+  gather_facts: true
   become: true
 
   roles:
