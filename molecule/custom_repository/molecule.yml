@@ -20,16 +20,8 @@ platforms:
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.ubuntu1804-custom_repository
-    image: geerlingguy/docker-ubuntu1804-ansible:latest  # ubuntu 18.04 - bionic
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    command: ${MOLECULE_DOCKER_COMMAND:-""}
-    pre_build_image: true
-    privileged: true
-
-  - name: restic_client.ubuntu2004-custom_repository
-    image: geerlingguy/docker-ubuntu2004-ansible:latest  # ubuntu 20.04 - focal
+  - name: restic_client.debian13-custom_repository
+    image: geerlingguy/docker-debian13-ansible:latest  # debian 13 - trixie
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: ${MOLECULE_DOCKER_COMMAND:-""}
@@ -44,8 +36,8 @@ platforms:
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.rockylinux8-custom_repository
-    image: geerlingguy/docker-rockylinux8-ansible:latest  # Rocky Linux 8
+  - name: restic_client.ubuntu2404-custom_repository
+    image: geerlingguy/docker-ubuntu2404-ansible:latest  # ubuntu 24.04 - noble
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: ${MOLECULE_DOCKER_COMMAND:-""}
@@ -59,6 +51,15 @@ platforms:
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     pre_build_image: true
     privileged: true
+
+  - name: restic_client.rockylinux10-custom_repository
+    image: geerlingguy/docker-rockylinux10-ansible:latest  # Rocky Linux 10
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    pre_build_image: true
+    privileged: true
+
 provisioner:
   name: ansible
 verifier:
