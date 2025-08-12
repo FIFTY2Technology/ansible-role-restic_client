@@ -1,0 +1,22 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Check if 'restic version' works
+      ansible.builtin.command:
+        cmd: restic version
+      register: _restic_version
+
+    - debug:
+        msg: "{{ _restic_version }}"
+
+    - name: Assert that 'restic version' output is valid
+      ansible.builtin.assert:
+        that:
+          - "_restic_version.stdout.split(' ')[0] == 'restic'"
+          - "_restic_version.stdout.split(' ')[1] is ansible.builtin.version('0.18', '>=')"
+          - "_restic_version.stdout.split(' ')[2] == 'compiled'"
+          - "_restic_version.stdout.split(' ')[3] == 'with'"
