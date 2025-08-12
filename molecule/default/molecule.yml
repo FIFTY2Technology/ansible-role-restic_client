@@ -26,19 +26,8 @@ platforms:
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.ubuntu1804-default
-    image: docker.io/geerlingguy/docker-ubuntu1804-ansible:latest  # ubuntu 18.04 - bionic
-    tmpfs:
-      - /run
-      - /tmp
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    command: /sbin/init
-    pre_build_image: true
-    privileged: true
-
-  - name: restic_client.ubuntu2004-default
-    image: docker.io/geerlingguy/docker-ubuntu2004-ansible:latest  # ubuntu 20.04 - focal
+  - name: restic_client.debian13-default
+    image: docker.io/geerlingguy/docker-debian13-ansible:latest  # debian 13 - trixie
     tmpfs:
       - /run
       - /tmp
@@ -59,8 +48,11 @@ platforms:
     pre_build_image: true
     privileged: true
 
-  - name: restic_client.rockylinux8-default
-    image: docker.io/geerlingguy/docker-rockylinux8-ansible:latest  # Rocky Linux 8
+  - name: restic_client.ubuntu2404-default
+    image: docker.io/geerlingguy/docker-ubuntu2404-ansible:latest  # ubuntu 24.04 - noble
+    tmpfs:
+      - /run
+      - /tmp
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     command: /sbin/init
@@ -77,6 +69,18 @@ platforms:
     command: /sbin/init
     pre_build_image: true
     privileged: true
+
+  - name: restic_client.rockylinux10-default
+    image: docker.io/geerlingguy/docker-rockylinux10-ansible:latest  # Rocky Linux 10
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+
 provisioner:
   name: ansible
 verifier:
