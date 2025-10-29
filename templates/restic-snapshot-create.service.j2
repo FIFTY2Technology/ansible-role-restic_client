@@ -37,7 +37,7 @@ Group=root
 {% if not 'swap' in item[0] and
       not 'tmp'  in item[0] and
       not item[3] | regex_search('^backup_') %}
-ExecStart=/sbin/lvcreate --extents 8%%ORIGIN --snapshot --name backup{{ item[0] | replace('/', '_') }} {{ item[1] }}
+ExecStart=/sbin/lvcreate --size 1G --snapshot --name backup{{ item[0] | replace('/', '_') }} {{ item[1] }}
 {% endif %}
 {% endfor %}
 
