@@ -1,7 +1,7 @@
 [[_TOC_]]
 
 # Description
-Installs `restic` and configures it to do a full system backup every night. Each node starts its backup between 00:00 and 03:00 o'clock, always at the same point in time (e.g. always starting at 01:23 o'clock)[^1]. Backups are stored in `/srv/restic` by default, other repository backends can be configured (e.g. [restic REST server](https://github.com/restic/rest-server)).
+Installs [restic](https://restic.net/) and configures it to do a full system backup every night. Each node starts its backup between 00:00 and 03:00 o'clock, always at the same point in time (e.g. always starting at 01:23 o'clock)[^1]. Backups are stored in `/srv/restic` by default, other repository backends can be configured (e.g. [restic REST server](https://github.com/restic/rest-server)).
 
 The role creates a systemd service file `restic-backup.service` that runs periodically via a `.timer` file. A `restic-prune.service` runs the `restic prune --forget` command once a week to delete old backups.
 
@@ -9,21 +9,21 @@ The role creates a systemd service file `restic-backup.service` that runs period
 If LVM is detected on a node, automatic creation of snapshots is included as part of the backup process.
 * `restic-backup.service` will be run inside a chroot of the mounted `/`-snapshot, with more snapshots mounted below, as applicable.
 * LVM logical volumes with `swap` or `tmp` in their names are not included.
-* At least 8 (eight) percent of the origins LV size must be free space in the LVM volume group for snapshots. A good estimate is to not let logical volumes (LVs) take more than 90 percent of the available space in a volume group (VG), or 10% free extents and you should be good to go. More is better, see point below.
-* To prevent failing backups due to full and invalidated snapshots, LVM gets configured to automatically extend snapshot sizes once they reach 80 percent capacity (can be disabled).
+* At least 1 GB of free space per logical volume (LV) in the LVM volume group (VG) for snapshots. A good estimate is to not let normal LVs take more than 90 percent of the available space in a volume group (VG), or 10% free extents for snapshots, and you should be good to go. More is better, see point below. If you expect a lot of file changes during the backup, plan for bigger snapshots accordingly.
+* To prevent failing backups due to full and invalidated snapshots, LVM gets configured to automatically extend near-full snapshot LVs once they reach 70 percent capacity (can be disabled).
 * Only logical volumes are considered that are mounted at the time of the playbook run. To add or remove LVs, mount/umount them and rerun the playbook.
 * Systems with existing logical volumes with names starting with `backup` are not tested and might cause name collision or even damage. This role creates LV snapshots named `backup*` per mount point, e.g. `backup_` for `/`, `backup_home` for `/home`, etc.
 * Tested with ext4 and xfs filesystems on LVM.
 
 ## Remote pull-style backups
-Optionally, backups can be triggered by the backup server, if a client cannot reach the backup server directly. (e.g. due to firewall rules, NAT, etc.) For this, the client must be deployed with `restic_client_is_remote: true` option. This functionality requires a REST-backend backup server deployed with the `fifty2technology.restic_server` role, and role `fifty2technology.restic_remote` must be deployed to the client.
+Optionally, backups can be triggered by the backup server, if a client cannot reach the backup server directly. (e.g. due to firewall rules, NAT, etc.) For this, the client must be deployed with `restic_client_is_remote: true` option. This functionality is only tested on the REST-backend backup server deployed with the [fifty2technology.restic_server](https://galaxy.ansible.com/ui/standalone/roles/fifty2technology/restic_server/) role, and role [fifty2technology.restic_remote](https://galaxy.ansible.com/ui/standalone/roles/fifty2technology/restic_remote/) must be deployed to the client.
 
 The backup client will be configured with non-active systemd timers for `restic-backup`/`restic-prune` operations in this case. The backup server will be configured to periodically connect to the client via SSH and open a [Remote Port Forwarding](https://www.ssh.com/academy/ssh/tunneling/example#remote-forwarding) to the restic REST backup server. The client is then able to reach the backup server on `127.0.0.1` through the SSH tunnel.
 
 # Requirements
 * Requires `bunzip2` to be installed on the Ansible runner.
-* Package `fuse` must be installed to use the `restic mount` command.
-* Systemd - tested on: Debian, Ubuntu, Fedora, Rocky Linux, Raspberry Pi 4B.
+* Package `fuse` must be installed to use the `restic mount` command on clients.
+* Systemd - tested on: Debian, Ubuntu, Fedora, Rocky Linux, Raspberry Pi OS.
 
 # Role Variables
 All variables which can be overridden are stored in defaults/main.yml file as well as in table below.

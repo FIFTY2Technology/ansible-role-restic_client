@@ -20,9 +20,9 @@ galaxy_info:
         - "10"
     - name: Ubuntu
       versions:
-        - bionic
         - focal
         - jammy
+        - noble
   galaxy_tags:
     - system
     - backup

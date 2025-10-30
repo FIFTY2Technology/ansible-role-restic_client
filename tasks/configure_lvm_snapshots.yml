@@ -19,7 +19,7 @@
     line: |-
       \1### snapshot_autoextend_threshold = 100
       \1### Ansible managed - fifty2technology.restic_client
-      \1snapshot_autoextend_threshold = 80
+      \1snapshot_autoextend_threshold = 70
     validate: /usr/sbin/lvmconfig --validate --file %s
     backup: true
   notify: Restart LVM event listener
