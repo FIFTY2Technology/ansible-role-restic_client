@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project has been moved to https://api.fifty2.eu/infrastructure/ansible-role-restic_client
+
 [[_TOC_]]
 
 # Description
